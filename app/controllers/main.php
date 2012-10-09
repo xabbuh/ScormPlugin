@@ -68,5 +68,17 @@ class MainController extends StudipController
             }
         }
     }
+    
+    function load_sco_action()
+    {
+        // load the plugin's frame layout
+        $plugin = $GLOBALS["plugin"];
+        $pluginManager = PluginManager::getInstance();
+        $pluginInfo = $pluginManager->getPluginInfo(get_class($plugin));
+        $layoutPath = $GLOBALS["PLUGINS_PATH"] . "/" . $pluginInfo["path"]
+                . "/layouts/frame";
+        $layout = $GLOBALS['template_factory']->open($layoutPath);
+        $this->set_layout($layout);
+    }
 
 }

@@ -194,12 +194,16 @@ if ($result->prerequisites) {
                 $scorm->width,
                 $scorm->height);
         echo '</script>';
+        
+        $url = PluginEngine::getURL($GLOBALS["plugin"], array("id" => $cm->id),
+                "main/load_sco");
+        $url .= "&{$scoidstr}{$modestr}";
         ?>
             <!--[if IE]>
-                <iframe id="main" class="scoframe" name="main" src="loadSCO.php?id=<?php echo $cm->id.$scoidstr.$modestr; ?>"></iframe>
+                <iframe id="main" class="scoframe" name="main" src="<?php echo $url; ?>"></iframe>
             <![endif]-->
             <!--[if !IE]>
-                <object id="main" class="scoframe" type="text/html" data="loadSCO.php?id=<?php echo $cm->id.$scoidstr.$modestr; ?>"></object>
+                <object id="main" class="scoframe" type="text/html" data="<?php echo $url; ?>"></object>
             <![endif]-->
             </noscript>
         <?php
@@ -229,6 +233,7 @@ if (empty($scorm->popup) || $displaymode == 'popup') {
     echo "    M.cfg = {}";
     echo "}";
     echo "M.cfg.pluginurl = '" . $GLOBALS["plugin"]->getPluginUrl() . "';";
+    echo "M.cfg.loadscourl = '" . PluginEngine::getUrl($GLOBALS["plugin"], array(), "main/load_sco") . "';";
     echo '</script>';
 }
 if (!empty($forcejs)) {

@@ -88,7 +88,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
             if (window.API_1484_11) {
                 window.API_1484_11 = null;
             }
-            var url_prefix = M.cfg.wwwroot + '/mod/scorm/loadSCO.php?';
+            var url_prefix = M.cfg.loadscourl;
             var el_old_api = document.getElementById('scormapi123');
             if (el_old_api) {
                 el_old_api.parentNode.removeChild(el_old_api);
