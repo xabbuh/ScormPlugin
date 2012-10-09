@@ -30,5 +30,43 @@ class MainController extends StudipController
         $stmt->execute();
         $this->learningUnits = $stmt->fetchAll();
     }
+    
+    function player_action($id)
+    {
+        $plugin = $GLOBALS["plugin"];
+        $this->learningUnit = $plugin->getLearningUnit($id);
+        
+        $url = PluginEngine::getURL($plugin, array(),
+                "main/player/$id");
+        $playerItem = new Navigation($this->learningUnit["name"], $url);
+        Navigation::addItem("/course/scorm/player", $playerItem);
+        Navigation::activateItem("/course/scorm/player");
+            
+        if(Request::get("intro") == "yes") {
+            $this->render_action("intro");
+        } else {
+            PageLayout::addScript("http://yui.yahooapis.com/3.7.2/build/yui/yui-min.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/yahoo-dom-event/yahoo-dom-event.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/element/element.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/connection/connection.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/treeview/treeview.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/layout/layout.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/container/container.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/yui/build/button/button.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/module.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/request.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/cookies.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/player.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/view.js");
+            PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/script.js");
+
+            PageLayout::addStylesheet($plugin->getPluginUrl() . "/assets/css/styles.css");
+            
+            $this->scorm = new stdClass();
+            foreach($this->learningUnit as $key => $value) {
+                $this->scorm->{$key} = $value;
+            }
+        }
+    }
 
 }
