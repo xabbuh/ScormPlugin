@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `scorm_learning_units` (
     `cid` VARCHAR(32) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `introduction_text` TEXT,
+    `scormtype` VARCHAR(50) NOT NULL,
     `filename` VARCHAR(255) NOT NULL,
     `scorm_version` VARCHAR(9) NOT NULL,
     `starttime` DATETIME,
