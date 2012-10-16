@@ -84,4 +84,14 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         $stmt->execute(array($id));
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
+    public function getLearningUnitAsObject($id)
+    {
+        $learningUnit = $this->getLearningUnit($id);
+        $learningUnitObject = new stdClass();
+        foreach($learningUnit as $key => $value) {
+            $learningUnitObject->{$key} = $value;
+        }
+        return $learningUnitObject;
+    }
 }
