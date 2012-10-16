@@ -398,7 +398,9 @@ function scorm_get_scoes($id, $organisation=false) {
 }
 
 function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $value, $forcecompleted=false) {
-    global $DB, $CFG;
+    global $CFG;
+    
+    $db = DBManager::get();
 
     $id = null;
 
@@ -419,23 +421,25 @@ function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $valu
         }
     }
 
-    if ($track = $DB->get_record('scorm_scoes_track', array('userid'=>$userid, 'scormid'=>$scormid, 'scoid'=>$scoid, 'attempt'=>$attempt, 'element'=>$element))) {
-        if ($element != 'x.start.time' ) { //don't update x.start.time - keep the original value.
-            $track->value = $value;
-            $track->timemodified = time();
-            $DB->update_record('scorm_scoes_track', $track);
+    $stmt = $db->prepare("SELECT * FROM `scorm_sco_tracks` WHERE `user_id` = ?
+        AND `learning_unit_id` = ? AND `sco_id` = ? AND `attempt` = ? AND
+        `element` = ?");
+    $stmt->execute(array($userid, $scormid, $scoid, $attempt, $element));
+    $track = $stmt->fetch(PDO::FETCH_OBJ);
+    if ($track) {
+        if ($element != 'x.start.time' || true) { //don't update x.start.time - keep the original value.
+            $stmt = $db->prepare("UPDATE `scorm_sco_tracks` SET `value` = ? WHERE
+                `id` = ?");
+            $stmt->execute(array($value, $track->id));
             $id = $track->id;
         }
     } else {
-        $track = new stdClass();
-        $track->userid = $userid;
-        $track->scormid = $scormid;
-        $track->scoid = $scoid;
-        $track->attempt = $attempt;
-        $track->element = $element;
-        $track->value = $value;
-        $track->timemodified = time();
-        $id = $DB->insert_record('scorm_scoes_track', $track);
+        $stmt = $db->prepare("INSERT INTO `scorm_sco_tracks` SET `user_id` = ?,
+            `learning_unit_id` = ?, `sco_id` = ?, `attempt` = ?, `element` = ?,
+            `value` = ?");
+        $stmt->execute(array($userid, $scormid, $scoid, $attempt, $element,
+            $value));
+        $id = $db->lastInsertId();
     }
 
     if (strstr($element, '.score.raw') ||
