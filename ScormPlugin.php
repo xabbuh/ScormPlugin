@@ -78,8 +78,8 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         $db = DBManager::get();
         $stmt = $db->prepare("SELECT `id`, `cid`, `name`, `introduction_text`,
             `scormtype`, `filename`, `scorm_version`, `starttime`, `endtime`,
-            `popup`, `grademethod`, `maxgrade`, `maxattempt`, `whatgrade` FROM
-            `scorm_learning_units` WHERE `id` = ? AND (`starttime` IS NULL OR
+            `auto`, `popup`, `grademethod`, `maxgrade`, `maxattempt`, `whatgrade`
+            FROM `scorm_learning_units` WHERE `id` = ? AND (`starttime` IS NULL OR
             `starttime` <= NOW()) AND (`endtime` IS NULL OR `endtime` >= NOW())");
         $stmt->execute(array($id));
         return $stmt->fetch(PDO::FETCH_ASSOC);
