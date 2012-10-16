@@ -234,6 +234,7 @@ if (empty($scorm->popup) || $displaymode == 'popup') {
     echo "}";
     echo "M.cfg.pluginurl = '" . $GLOBALS["plugin"]->getPluginUrl() . "';";
     echo "M.cfg.loadscourl = '" . PluginEngine::getUrl($GLOBALS["plugin"], array(), "main/load_sco") . "&';";
+    echo "M.cfg.loaddataurl = '" . PluginEngine::getUrl($GLOBALS["plugin"], array(), "main/load_data") . "&';";
     echo '</script>';
 }
 if (!empty($forcejs)) {

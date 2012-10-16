@@ -21,7 +21,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 $delayseconds = 2;  // Delay time before sco launch, used to give time to browser to define API
 
 if (!empty($a)) {
-    $scorm = $plugin->getLearningUnit($a);
+    $scorm = $plugin->getLearningUnitAsObject($a);
 //    if (! $course = $DB->get_record('course', array('id'=>$scorm->course))) {
 //        print_error('coursemisconf');
 //    }
@@ -74,7 +74,7 @@ if ($sco->scormtype == 'asset') {
 // Forge SCO URL
 //
 $connector = '';
-$version = substr($scorm->version, 0, 4);
+$version = substr($scorm->scorm_version, 0, 4);
 if ((isset($sco->parameters) && (!empty($sco->parameters))) || ($version == 'AICC')) {
     if (stripos($sco->launch, '?') !== false) {
         $connector = '&';
@@ -117,7 +117,7 @@ if (scorm_external_link($sco->launch)) {
 } else if ($scorm->scormtype === SCORM_TYPE_LOCAL or $scorm->scormtype === SCORM_TYPE_LOCALSYNC) {
     //note: do not convert this to use get_file_url() or moodle_url()
     //SCORM does not work without slasharguments and moodle_url() encodes querystring vars
-    $result = "$CFG->wwwroot/pluginfile.php/$context->id/mod_scorm/content/$scorm->revision/$launcher";
+    $result = "{$GLOBALS["ABSOLUTE_URI_STUDIP"]}/scorm/{$scorm->id}/$launcher";
 }
 
 // which API are we looking for
@@ -192,6 +192,6 @@ header('Content-Type: text/html');
         </noscript>
     </head>
     <body onload="doredirect();">
-        <p><?php echo get_string('activitypleasewait', 'scorm');?></p>
+        <p>Bitte warten.</p>
     </body>
 </html>
