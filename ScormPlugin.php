@@ -34,6 +34,8 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
 {
     public function __construct()
     {
+        global $perm;
+        
         parent::__construct();
         
         $url = PluginEngine::getURL($this, array(), "main");
@@ -42,6 +44,15 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         
         $scormOverviewItem = new Navigation(_("Übersicht"), $url);
         Navigation::addItem("/course/scorm/overview", $scormOverviewItem);
+        
+        // allow to add learning units if the user has "dozent" permission
+        // for the current course
+        $cid = Request::get("cid");
+        if($cid && $perm->have_studip_perm("dozent", $cid)) {
+            $url = PluginEngine::getURL($this, array(), "main/add");
+            $addScormItem = new Navigation(_("Hinzufügen"), $url);
+            Navigation::addItem("/course/scorm/add", $addScormItem);
+        }
     }
     
     public function getTabNavigation($course_id)

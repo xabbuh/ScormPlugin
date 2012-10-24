@@ -98,5 +98,11 @@ class MainController extends StudipController
         $layout = $GLOBALS['template_factory']->open($layoutPath);
         $this->set_layout($layout);
     }
+    
+    function add_action()
+    {
+        $plugin = $GLOBALS["plugin"];
+        PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/form.js");
+    }
 
 }
