@@ -533,10 +533,17 @@ function scorm_parse_scorm($scorm, $manifest) {
                     // Insert the new SCO, and retain the link between the old and new for later adjustment
                     $stmt = $db->prepare("INSERT INTO `scorm_scos` SET
                         `learning_unit_id` = :learning_unit_id, `manifest` =
-                        :manifest, `organization` = :organization");
+                        :manifest, `organization` = :organization, `parent` =
+                        :parent, `identifier` = :identifier, `launch` = :launch,
+                        `scormtype` = :scormtype, `title` = :title");
                     $stmt->bindValue(":learning_unit_id", $newitem->scorm);
                     $stmt->bindValue(":manifest", $newitem->manifest);
                     $stmt->bindValue(":organization", $newitem->organization);
+                    $stmt->bindValue(":parent", $newitem->parent);
+                    $stmt->bindValue(":identifier", $newitem->identifier);
+                    $stmt->bindValue(":launch", $newitem->launch);
+                    $stmt->bindValue(":scormtype", $newitem->scormtype);
+                    $stmt->bindValue(":title", $newitem->title);
                     $stmt->execute();
                     $id = $db->lastInsertId();
                     if (!empty($olditems) && ($olditemid = scorm_array_search('identifier', $newitem->identifier, $olditems))) {
