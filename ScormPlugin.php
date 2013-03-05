@@ -108,4 +108,14 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         }
         return $learningUnitObject;
     }
+    
+    /**
+     * Returns the absoloute path to the packages directory.
+     * 
+     * @return string The path to the packages
+     */
+    public function getPackagesPath()
+    {
+        return $GLOBALS["ABSOLUTE_PATH_STUDIP"] . $this->getPluginPath() . "/packages";
+    }
 }
