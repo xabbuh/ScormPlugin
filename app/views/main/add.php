@@ -2,6 +2,7 @@
 $actionUrl = PluginEngine::getURL($GLOBALS["plugin"], array(), "main/save");
 ?>
 <form method="post" action="<?=$actionUrl?>" enctype="multipart/form-data">
+    <input type="hidden" name="action" value="save"/>
     <fieldset>
         <legend><?php echo _("Grundeinstellungen") ?></legend>
         <div>
@@ -69,7 +70,11 @@ $actionUrl = PluginEngine::getURL($GLOBALS["plugin"], array(), "main/save");
                 ?>
             </select>
             <select name="timeopen[hour]" disabled="disabled">
-                
+                <?php
+                for ($i = 0; $i < 24; $i += 1):
+                    printf('<option value="%d">%02d</option>', $i, $i);
+                endfor;
+                ?>
             </select>
             <select name="timeopen[minute]" disabled="disabled">
                 <?php
@@ -119,7 +124,11 @@ $actionUrl = PluginEngine::getURL($GLOBALS["plugin"], array(), "main/save");
                 ?>
             </select>
             <select name="timeclose[hour]" disabled="disabled">
-                
+                <?php
+                for ($i = 0; $i < 24; $i += 1):
+                    printf('<option value="%d">%02d</option>', $i, $i);
+                endfor;
+                ?>
             </select>
             <select name="timeclose[minute]" disabled="disabled">
                 <?php
@@ -172,7 +181,7 @@ $actionUrl = PluginEngine::getURL($GLOBALS["plugin"], array(), "main/save");
             </label>
         </div>
         <div>
-            <select name="popup" id="scorm_maxgrade">
+            <select name="maxgrade" id="scorm_maxgrade">
                 <?php
                 for ($i = 0; $i <= 100; $i++):
                     printf('<option value="%d">%d</option>', $i, $i);
@@ -212,4 +221,8 @@ $actionUrl = PluginEngine::getURL($GLOBALS["plugin"], array(), "main/save");
             </select>
         </div>
     </fieldset>
+    
+    <?php
+    echo Studip\Button::createAccept(_("Speichern"));
+    ?>
 </form>
