@@ -24,9 +24,7 @@ class MainController extends StudipController
         $db = DBManager::get();
         $stmt = $db->prepare("SELECT `id`, `cid`, `name`, `introduction_text`,
             `filename`, `scorm_version`, `starttime`, `endtime`, `popup`,
-            `grademethod`, `maxgrade`, `maxattempt`, `whatgrade` FROM `scorm_learning_units` WHERE
-            (`starttime` IS NULL OR `starttime` <= NOW()) AND (`endtime` IS NULL
-            OR `endtime` >= NOW())");
+            `grademethod`, `maxgrade`, `maxattempt`, `whatgrade` FROM `scorm_learning_units`");
         $stmt->execute();
         $this->learningUnits = $stmt->fetchAll();
     }
