@@ -83,8 +83,8 @@ function scorm_status_options($with_strings = false) {
  * @param object $mform
  * @return int new instance id
  */
-function scorm_add_instance($scorm, $mform=null) {
-    global $CFG, $DB;
+function scorm_add_instance($scorm, $originalFilename = null, $file = null) {
+    $db = DBManager::get();
 
     if (empty($scorm->timeopen)) {
         $scorm->timeopen = 0;
@@ -92,11 +92,6 @@ function scorm_add_instance($scorm, $mform=null) {
     if (empty($scorm->timeclose)) {
         $scorm->timeclose = 0;
     }
-    $cmid       = $scorm->coursemodule;
-    $cmidnumber = $scorm->cmidnumber;
-    $courseid   = $scorm->course;
-
-    $context = get_context_instance(CONTEXT_MODULE, $cmid);
 
     $scorm = scorm_option2text($scorm);
     $scorm->width  = (int)str_replace('%', '', $scorm->width);
@@ -105,46 +100,86 @@ function scorm_add_instance($scorm, $mform=null) {
     if (!isset($scorm->whatgrade)) {
         $scorm->whatgrade = 0;
     }
-
-    $id = $DB->insert_record('scorm', $scorm);
-
-    /// update course module record - from now on this instance properly exists and all function may be used
-    $DB->set_field('course_modules', 'instance', $id, array('id'=>$cmid));
-
+    
+    $stmt = $db->prepare("INSERT INTO `scorm_learning_units` SET `cid` = :cid,
+        `name` = :name, `introduction_text` = :text, `scormtype` = :type,
+        `starttime` = :starttime, `endtime` = :endtime, `auto` = :auto,
+        `popup` = :popup, `grademethod` = :grademethod, `maxgrade` = :maxgrade,
+        `maxattempt` = :maxattempt, `whatgrade` = :whatgrade");
+    $stmt->bindValue(":cid", $scorm->course);
+    $stmt->bindValue(":name", $scorm->name);
+    $stmt->bindValue(":text", $scorm->introduction_text);
+    $stmt->bindValue(":type", $scorm->scormtype);
+    $stmt->bindValue(":starttime", $scorm->timeopen);
+    $stmt->bindValue(":endtime", $scorm->timeclose);
+    $stmt->bindValue(":auto", $scorm->auto);
+    $stmt->bindValue(":popup", $scorm->popup);
+    $stmt->bindValue(":grademethod", $scorm->grademethod);
+    $stmt->bindValue(":maxgrade", $scorm->maxgrade);
+    $stmt->bindValue(":maxattempt", $scorm->maxattempt);
+    $stmt->bindValue(":whatgrade", $scorm->whatgrade);
+    $stmt->execute();
+    $id = $db->lastInsertId();
+    
     /// reload scorm instance
-    $record = $DB->get_record('scorm', array('id'=>$id));
+    $stmt = $db->prepare("SELECT * FROM `scorm_learning_units` WHERE `id` = :id");
+    $stmt->execute(array("id" => $id));
+    $record = $stmt->fetchObject();
 
     /// store the package and verify
     if ($record->scormtype === SCORM_TYPE_LOCAL) {
-        if ($mform) {
-            $filename = $mform->get_new_filename('packagefile');
-            if ($filename !== false) {
-                $fs = get_file_storage();
-                $fs->delete_area_files($context->id, 'mod_scorm', 'package');
-                $mform->save_stored_file('packagefile', $context->id, 'mod_scorm', 'package', 0, '/', $filename);
-                $record->reference = $filename;
+        // upload and extract zip package if given
+        if ($file && is_file($file)) {
+            $plugin = PluginEngine::getPlugin("ScormPlugin");
+            $directory = $plugin->getPackagesPath() . "/$id";
+            if (!file_exists($directory)) {
+                mkdir($directory);
             }
+            if ($originalFilename) {
+                $filename = basename($originalFilename);
+            } else {
+                $filename = basename($file);
+            }
+            copy($file, "$directory/$filename");
+            
+            $record->reference = $originalFilename;
+            $stmt = $db->prepare("UPDATE `scorm_learning_units` SET
+                `reference` = :reference WHERE `id` = :id");
+            $stmt->bindValue(":reference", $originalFilename);
+            $stmt->bindValue(":id", $id);
+            $stmt->execute();
         }
-
     } else if ($record->scormtype === SCORM_TYPE_LOCALSYNC) {
         $record->reference = $scorm->packageurl;
+        $stmt = $db->prepare("UPDATE `scorm_learning_units` SET
+            `reference` = :reference WHERE `id` = :id");
+        $stmt->bindValue(":reference", $scorm->packageurl);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
     } else if ($record->scormtype === SCORM_TYPE_EXTERNAL) {
         $record->reference = $scorm->packageurl;
+        $stmt = $db->prepare("UPDATE `scorm_learning_units` SET
+            `reference` = :reference WHERE `id` = :id");
+        $stmt->bindValue(":reference", $scorm->packageurl);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
     } else if ($record->scormtype === SCORM_TYPE_IMSREPOSITORY) {
         $record->reference = $scorm->packageurl;
+        $stmt = $db->prepare("UPDATE `scorm_learning_units` SET
+            `reference` = :reference WHERE `id` = :id");
+        $stmt->bindValue(":reference", $scorm->packageurl);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
     } else if ($record->scormtype === SCORM_TYPE_AICCURL) {
         $record->reference = $scorm->packageurl;
+        $stmt = $db->prepare("UPDATE `scorm_learning_units` SET
+            `reference` = :reference WHERE `id` = :id");
+        $stmt->bindValue(":reference", $scorm->packageurl);
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
     } else {
         return false;
     }
-
-    // save reference
-    $DB->update_record('scorm', $record);
-
-    /// extra fields required in grade related functions
-    $record->course     = $courseid;
-    $record->cmidnumber = $cmidnumber;
-    $record->cmid       = $cmid;
 
     scorm_parse($record, true);
 
@@ -641,6 +676,7 @@ function scorm_upgrade_grades() {
  * @return object grade_item
  */
 function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
+    /*
     global $CFG, $DB;
     if (!function_exists('grade_update')) { //workaround for buggy PHP versions
         require_once($CFG->libdir.'/gradelib.php');
@@ -684,6 +720,7 @@ function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
     }
 
     return grade_update('mod/scorm', $scorm->course, 'mod', 'scorm', $scorm->id, 0, $grades, $params);
+     */
 }
 
 /**

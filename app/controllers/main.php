@@ -101,8 +101,62 @@ class MainController extends StudipController
     
     function add_action()
     {
+        Navigation::activateItem("/course/scorm/add");
         $plugin = $GLOBALS["plugin"];
         PageLayout::addScript($plugin->getPluginUrl() . "/assets/js/form.js");
+    }
+    
+    function save_action()
+    {
+        // TODO: check form values
+        if (Request::get("action") == "save") {
+            $scorm = new stdClass();
+            $scorm->name = Request::get("name");
+            $scorm->introduction_text = Request::get("");
+            $scorm->scormtype = SCORM_TYPE_LOCAL;
+            $scorm->popup = Request::get("popup");
+            $scorm->grademethod = Request::get("grademethod");
+            $scorm->maxgrade = Request::get("maxgrade");
+            $scorm->maxattempt = Request::get("maxattempt");
+            $scorm->whatgrade = Request::get("whatgrade");
+            $scorm->auto = Request::get("");
+            $scorm->course = Request::get("cid");
+            
+            $timeopen = Request::getArray("timeopen");
+            if (is_array($timeopen) && isset($timeopen["enabled"])) {
+                $scorm->timeopen = sprintf(
+                    "%d-%02d-%02d %02d:%02d:00",
+                    $timeopen["year"],
+                    $timeopen["month"],
+                    $timeopen["day"],
+                    $timeopen["hour"],
+                    $timeopen["minute"]
+                );
+            } else {
+                $scorm->timeopen = null;
+            }
+            $timeclose = Request::getArray("timeclose");
+            if (is_array($timeclose) && isset($timeclose["enabled"])) {
+                $scorm->timeclose = sprintf(
+                    "%d-%02d-%02d %02d:%02d:00",
+                    $timeclose["year"],
+                    $timeclose["month"],
+                    $timeclose["day"],
+                    $timeclose["hour"],
+                    $timeclose["minute"]
+                );
+            } else {
+                $scorm->timeclose = null;
+            }
+            
+            scorm_add_instance(
+                $scorm,
+                $_FILES["packagefilechoose"]["name"],
+                $_FILES["packagefilechoose"]["tmp_name"]);
+            $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/index"));
+        } else {
+            $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/add"));
+        }
     }
 
 }

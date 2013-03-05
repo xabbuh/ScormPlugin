@@ -71,9 +71,8 @@ define('TOCFULLURL', 2);
  * @return array an array of popup options as the key and their defaults as the value
  */
 function scorm_get_popup_options_array() {
-    global $CFG;
-    $cfg_scorm = get_config('scorm');
-
+    // TODO: config options for popup configuration
+    $cfg_scorm = new stdClass();
     return array('resizable'=> isset($cfg_scorm->resizable) ? $cfg_scorm->resizable : 0,
                  'scrollbars'=> isset($cfg_scorm->scrollbars) ? $cfg_scorm->scrollbars : 0,
                  'directories'=> isset($cfg_scorm->directories) ? $cfg_scorm->directories : 0,
@@ -174,24 +173,27 @@ function scorm_get_attempts_array() {
  * @return void
  */
 function scorm_parse($scorm, $full) {
-    global $CFG, $DB;
+    // TODO: read config
     $cfg_scorm = get_config('scorm');
-
-    if (!isset($scorm->cmid)) {
-        $cm = get_coursemodule_from_instance('scorm', $scorm->id);
-        $scorm->cmid = $cm->id;
-    }
-    $context = get_context_instance(CONTEXT_MODULE, $scorm->cmid);
+    
+    $db = DBManager::get();
+    $plugin = PluginEngine::getPlugin("ScormPlugin");
+    $contentsDirectory = $plugin->getContentsDirectoryPath($scorm->id);
+    
     $newhash = $scorm->sha1hash;
 
-    if ($scorm->scormtype === SCORM_TYPE_LOCAL or $scorm->scormtype === SCORM_TYPE_LOCALSYNC) {
-
-        $fs = get_file_storage();
+    if ($scorm->scormtype === SCORM_TYPE_LOCAL || $scorm->scormtype === SCORM_TYPE_LOCALSYNC) {
         $packagefile = false;
 
         if ($scorm->scormtype === SCORM_TYPE_LOCAL) {
-            if ($packagefile = $fs->get_file($context->id, 'mod_scorm', 'package', 0, '/', $scorm->reference)) {
-                $newhash = $packagefile->get_contenthash();
+            $packagefile = sprintf(
+                "%s/%d/%s",
+                $plugin->getPackagesPath(),
+                $scorm->id,
+                $scorm->reference
+            );
+            if (is_file($packagefile)) {
+                $newhash = sha1(file_get_contents($packagefile));
             } else {
                 $newhash = null;
             }
@@ -225,23 +227,23 @@ function scorm_parse($scorm, $full) {
             }
 
             // now extract files
-            $fs->delete_area_files($context->id, 'mod_scorm', 'content');
-
-            $packer = get_file_packer('application/zip');
-            $packagefile->extract_to_storage($packer, $context->id, 'mod_scorm', 'content', 0, '/');
-
+            rmdirr($contentsDirectory);
+            mkdir($contentsDirectory);
+            chmod($contentsDirectory, 0777);
+            unzip_file($packagefile, $contentsDirectory);
         } else if (!$full) {
             return;
         }
 
-        if ($manifest = $fs->get_file($context->id, 'mod_scorm', 'content', 0, '/', 'imsmanifest.xml')) {
-            require_once("$CFG->dirroot/mod/scorm/datamodels/scormlib.php");
+        $manifest = "$contentsDirectory/imsmanifest.xml";
+        if (is_file($manifest)) {
+            require_once __DIR__ . "/datamodels/scormlib.php";
             // SCORM
             if (!scorm_parse_scorm($scorm, $manifest)) {
                 $scorm->version = 'ERROR';
             }
         } else {
-            require_once("$CFG->dirroot/mod/scorm/datamodels/aicclib.php");
+            require_once __DIR__ . "/datamodels/aicclib.php";
             // AICC
             if (!scorm_parse_aicc($scorm)) {
                 $scorm->version = 'ERROR';
@@ -283,7 +285,13 @@ function scorm_parse($scorm, $full) {
 
     $scorm->revision++;
     $scorm->sha1hash = $newhash;
-    $DB->update_record('scorm', $scorm);
+    $stmt = $db->prepare("UPDATE `scorm_learning_units` SET `scorm_version` = :version,
+        `sha1hash` = :sha1hash, `revision` = :revision WHERE `id` = :id");
+    $stmt->bindValue(":version", $scorm->version);
+    $stmt->bindValue(":sha1hash", $scorm->sha1hash);
+    $stmt->bindValue(":revision", $scorm->revision);
+    $stmt->bindValue(":id", $scorm->id);
+    $stmt->execute();
 }
 
 
