@@ -20,7 +20,7 @@ function scorm_get_resources($blocks) {
         if ($block['name'] == 'RESOURCES' && isset($block['children'])) {
             foreach ($block['children'] as $resource) {
                 if ($resource['name'] == 'RESOURCE') {
-                    $resources[addslashes_js($resource['attrs']['IDENTIFIER'])] = $resource['attrs'];
+                    $resources[addslashes($resource['attrs']['IDENTIFIER'])] = $resource['attrs'];
                 }
             }
         }
@@ -493,16 +493,11 @@ function scorm_get_manifest($blocks, $scoes) {
 }
 
 function scorm_parse_scorm($scorm, $manifest) {
-    global $CFG, $DB;
-
     // load manifest into string
-    if ($manifest instanceof stored_file) {
-        $xmltext = $manifest->get_content();
-    } else {
-        require_once("$CFG->libdir/filelib.php");
-        $xmltext = download_file_content($manifest);
-    }
-
+    $xmltext = file_get_contents($manifest);
+    
+    $db = DBManager::get();
+    
     $launch = 0;
 
     $pattern = '/&(?!\w{2,6};)/';
@@ -515,7 +510,11 @@ function scorm_parse_scorm($scorm, $manifest) {
     $scoes->version = '';
     $scoes = scorm_get_manifest($manifests, $scoes);
     if (count($scoes->elements) > 0) {
-        $olditems = $DB->get_records('scorm_scoes', array('scorm'=>$scorm->id));
+        $stmt = $db->prepare("SELECT `id`, `learning_unit_id`, `manifest`,
+            `organization`, `parent`, `identifier`, `launch`, `scormtype`,
+            `title` FROM `scorm_scos` WHERE `learning_unit_id` = :id");
+        $stmt->execute(array("id" => $scorm->id));
+        $olditems = $stmt->fetchAll(PDO::FETCH_CLASS);
         foreach ($scoes->elements as $manifest => $organizations) {
             foreach ($organizations as $organization => $items) {
                 foreach ($items as $identifier => $item) {
@@ -532,7 +531,14 @@ function scorm_parse_scorm($scorm, $manifest) {
                     }
 
                     // Insert the new SCO, and retain the link between the old and new for later adjustment
-                    $id = $DB->insert_record('scorm_scoes', $newitem);
+                    $stmt = $db->prepare("INSERT INTO `scorm_scos` SET
+                        `learning_unit_id` = :learning_unit_id, `manifest` =
+                        :manifest, `organization` = :organization");
+                    $stmt->bindValue(":learning_unit_id", $newitem->scorm);
+                    $stmt->bindValue(":manifest", $newitem->manifest);
+                    $stmt->bindValue(":organization", $newitem->organization);
+                    $stmt->execute();
+                    $id = $db->lastInsertId();
                     if (!empty($olditems) && ($olditemid = scorm_array_search('identifier', $newitem->identifier, $olditems))) {
                         $olditems[$olditemid]->newid = $id;
                     }
@@ -544,7 +550,13 @@ function scorm_parse_scorm($scorm, $manifest) {
                             if (isset($item->$optionaldata)) {
                                 $data->name =  $optionaldata;
                                 $data->value = $item->$optionaldata;
-                                $dataid = $DB->insert_record('scorm_scoes_data', $data);
+                                $stmt = $db->prepare("INSERT INTO `scorm_sco_data`
+                                    SET `sco_id` = :sco_id, `name` = :name,
+                                    `value` = :value");
+                                $stmt->bindValue(":sco_id", $data->scoid);
+                                $stmt->bindValue(":name", $data->name);
+                                $stmt->bindValue(":value", $data->value);
+                                $stmt->execute();
                             }
                         }
                     }
@@ -644,7 +656,10 @@ function scorm_parse_scorm($scorm, $manifest) {
         if (empty($scoes->version)) {
             $scoes->version = 'SCORM_1.2';
         }
-        $DB->set_field('scorm', 'version', $scoes->version, array('id'=>$scorm->id));
+        $stmt = $db->prepare("UPDATE `scorm_learning_units` SET `version` = :version
+            WHERE `id` = :id");
+        $stmt->bindValue(":version", $scoes->version);
+        $stmt->bindValue(":id", $scorm->id);
         $scorm->version = $scoes->version;
     }
 
