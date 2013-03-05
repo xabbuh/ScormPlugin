@@ -55,20 +55,21 @@ $strexit = "beenden";
 
 //check if scorm closed
 $timenow = time();
-if (!is_null($scorm->endtime)) {
-    if (strtotime($scorm->starttime) > $timenow) {
-        echo $OUTPUT->header();
-        echo $OUTPUT->box(get_string("notopenyet", "scorm", userdate($scorm->timeopen)), "generalbox boxaligncenter");
-        echo $OUTPUT->footer();
-        die;
-    } else if ($timenow > strtotime($scorm->endtime)) {
-        echo $OUTPUT->header();
-        echo $OUTPUT->box(get_string("expired", "scorm", userdate($scorm->timeclose)), "generalbox boxaligncenter");
-        echo $OUTPUT->footer();
-
-        die;
-    }
-}
+// TODO: check and display error messages
+//if (!is_null($scorm->endtime)) {
+//    if (strtotime($scorm->starttime) > $timenow) {
+//        echo $OUTPUT->header();
+//        echo $OUTPUT->box(get_string("notopenyet", "scorm", userdate($scorm->timeopen)), "generalbox boxaligncenter");
+//        echo $OUTPUT->footer();
+//        die;
+//    } else if ($timenow > strtotime($scorm->endtime)) {
+//        echo $OUTPUT->header();
+//        echo $OUTPUT->box(get_string("expired", "scorm", userdate($scorm->timeclose)), "generalbox boxaligncenter");
+//        echo $OUTPUT->footer();
+//
+//        die;
+//    }
+//}
 
 // TOC processing
 if (!file_exists(__DIR__ . '/../../../'.$scorm->scorm_version.'lib.php')) {
