@@ -118,4 +118,15 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
     {
         return $GLOBALS["ABSOLUTE_PATH_STUDIP"] . $this->getPluginPath() . "/packages";
     }
+    
+    /**
+     * Returns the directory for a learning where its extract files are stored.
+     * 
+     * @param int $id The id of the learning unit
+     * @return string The absolute path
+     */
+    public function getContentsDirectoryPath($id)
+    {
+        return $this->getPackagesPath() . "/$id/contents";
+    }
 }
