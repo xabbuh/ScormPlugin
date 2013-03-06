@@ -87,25 +87,48 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         $dispatcher->dispatch($unconsumed_path);
     }
     
+    /**
+     * Fetch a SCORM module from the database as an associative array.
+     * 
+     * @param int $id The id of the module being retrieved
+     * @return array The module's data
+     */
     public function getLearningUnit($id)
+    {
+        $stmt = $this->getSqlStatement($id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    
+    /**
+     * Fetch a SCORM module from the database as an anonymous object.
+     * 
+     * @param int $id The id of the module being retrieved
+     * @return \stdClass The module's data
+     */
+    public function getLearningUnitAsObject($id)
+    {
+        $stmt = $this->getSqlStatement($id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+    
+    /**
+     * Prepare a sql statement to retrieve a SCORM module from the database.
+     * 
+     * @param int $id The id of the module being retrieved
+     * @return \PDOStatement The prepared statement
+     */
+    private function getSqlStatement($id)
     {
         $db = DBManager::get();
         $stmt = $db->prepare("SELECT `id`, `cid`, `name`, `introduction_text`,
             `scormtype`, `filename`, `scorm_version`, `starttime`, `endtime`,
             `auto`, `popup`, `grademethod`, `maxgrade`, `maxattempt`, `whatgrade`
-            FROM `scorm_learning_units` WHERE `id` = ?");
-        $stmt->execute(array($id));
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-    
-    public function getLearningUnitAsObject($id)
-    {
-        $learningUnit = $this->getLearningUnit($id);
-        $learningUnitObject = new stdClass();
-        foreach($learningUnit as $key => $value) {
-            $learningUnitObject->{$key} = $value;
-        }
-        return $learningUnitObject;
+            FROM `scorm_learning_units` WHERE `id` = :id");
+        $stmt->bindValue(":id", $id);
+        return $stmt;
     }
     
     /**
