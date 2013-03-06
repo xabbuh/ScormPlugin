@@ -168,6 +168,8 @@ class MainController extends StudipController
         if (Request::get("accept") == "yes") {
             scorm_delete_instance($id);
             $this->redirect(PluginEngine::getUrl($GLOBALS["plugin"], array(), "main/index"));
+        } else if (Request::get("cancel") == "yes") {
+            $this->redirect(PluginEngine::getUrl($GLOBALS["plugin"], array(), "main/index"));
         } else {
             $this->id = $id;
             $this->cid = Request::get("cid");
