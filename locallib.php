@@ -84,6 +84,8 @@ function scorm_get_popup_options_array() {
 
 /**
  * Returns an array of the array of what grade options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of what grade options
  */
@@ -96,6 +98,8 @@ function scorm_get_grade_method_array() {
 
 /**
  * Returns an array of the array of what grade options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of what grade options
  */
@@ -108,6 +112,8 @@ function scorm_get_what_grade_array() {
 
 /**
  * Returns an array of the array of skip view options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of skip view options
  */
@@ -119,6 +125,8 @@ function scorm_get_skip_view_array() {
 
 /**
  * Returns an array of the array of hide table of contents options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of hide table of contents options
  */
@@ -131,6 +139,8 @@ function scorm_get_hidetoc_array() {
 
 /**
  * Returns an array of the array of update frequency options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of update frequency options
  */
@@ -142,6 +152,8 @@ function scorm_get_updatefreq_array() {
 
 /**
  * Returns an array of the array of popup display options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of popup display options
  */
@@ -152,6 +164,8 @@ function scorm_get_popup_display_array() {
 
 /**
  * Returns an array of the array of attempt options
+ * 
+ * TODO: migrate to StudIP
  *
  * @return array an array of attempt options
  */
@@ -376,8 +390,6 @@ function scorm_get_sco($id, $what=SCO_ALL) {
  * @return mixed (false if there are no scoes or an array)
  */
 function scorm_get_scoes($id, $organisation=false) {
-    global $DB;
-
     $organizationsql = '';
     $queryarray = array('scorm'=>$id);
     if (!empty($organisation)) {
@@ -406,8 +418,6 @@ function scorm_get_scoes($id, $organisation=false) {
 }
 
 function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $value, $forcecompleted=false) {
-    global $CFG;
-    
     $db = DBManager::get();
 
     $id = null;
@@ -463,7 +473,7 @@ function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $valu
 
 function scorm_get_tracks($scoid, $userid, $attempt='') {
     /// Gets all tracks of specified sco and user
-    global $CFG, $user;
+    global $user;
     
     $db = DBManager::get();
 
@@ -527,6 +537,8 @@ function scorm_get_tracks($scoid, $userid, $attempt='') {
 
 
 /* Find the start and finsh time for a a given SCO attempt
+ * 
+ * TODO: migrate to StudIP
  *
  * @param int $scormid SCORM Id
  * @param int $scoid SCO Id
@@ -559,7 +571,13 @@ function scorm_get_sco_runtime($scormid, $scoid, $userid, $attempt=1) {
     return $timedata;
 }
 
-
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $DB
+ * @param type $userid
+ * @return type 
+ */
 function scorm_get_user_data($userid) {
     global $DB;
     /// Gets user info required to display the table of scorm results
@@ -568,6 +586,15 @@ function scorm_get_user_data($userid) {
     return $DB->get_record('user', array('id'=>$userid), user_picture::fields());
 }
 
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $DB
+ * @param type $scorm
+ * @param type $userid
+ * @param type $attempt
+ * @return null 
+ */
 function scorm_grade_user_attempt($scorm, $userid, $attempt=1) {
     global $DB;
     $attemptscore = new stdClass();
@@ -694,6 +721,14 @@ function scorm_get_last_attempt($learningUnitId, $userid) {
     }
 }
 
+/**
+ * TODO: migrate to StudIP
+ * 
+ * @global type $DB
+ * @param type $scormid
+ * @param type $userid
+ * @return string|boolean 
+ */
 function scorm_get_last_completed_attempt($scormid, $userid) {
     global $DB;
 
@@ -709,6 +744,16 @@ function scorm_get_last_completed_attempt($scormid, $userid) {
     }
 }
 
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $CFG
+ * @global type $DB
+ * @global type $PAGE
+ * @global type $OUTPUT
+ * @param type $user
+ * @param type $course 
+ */
 function scorm_course_format_display($user, $course) {
     global $CFG, $DB, $PAGE, $OUTPUT;
 
@@ -763,6 +808,18 @@ function scorm_course_format_display($user, $course) {
     echo '</div>';
 }
 
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $CFG
+ * @global type $DB
+ * @global type $PAGE
+ * @global type $OUTPUT
+ * @param type $user
+ * @param type $scorm
+ * @param type $action
+ * @param type $cm 
+ */
 function scorm_view_display ($user, $scorm, $action, $cm) {
     global $CFG, $DB, $PAGE, $OUTPUT;
 
@@ -858,6 +915,16 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
     }
 }
 
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $DB
+ * @param type $scorm
+ * @param type $user
+ * @param type $context
+ * @param type $cmid
+ * @return boolean 
+ */
 function scorm_simple_play($scorm, $user, $context, $cmid) {
     global $DB;
 
@@ -900,6 +967,15 @@ function scorm_simple_play($scorm, $user, $context, $cmid) {
     return $result;
 }
 
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $CFG
+ * @global type $DB
+ * @param type $scormid
+ * @param type $groupingid
+ * @return type 
+ */
 function scorm_get_count_users($scormid, $groupingid=null) {
     global $CFG, $DB;
 
@@ -1066,6 +1142,8 @@ function scorm_element_cmp($a, $b) {
 
 /**
  * Generate the user attempt status string
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $user Current context user
  * @param object $scorm a moodle scrom object - mdl_scorm
@@ -1164,6 +1242,8 @@ function scorm_get_attempt_status($user, $scorm, $cm='') {
 
 /**
  * Get SCORM attempt count
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $user Current context user
  * @param object $scorm a moodle scrom object - mdl_scorm
@@ -1194,6 +1274,8 @@ function scorm_get_attempt_count($userid, $scorm, $attempts_only=false) {
 
 /**
  * Figure out with this is a debug situation
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $scorm a moodle scrom object - mdl_scorm
  * @return boolean - debugging true/false
@@ -1218,6 +1300,8 @@ function scorm_debugging($scorm) {
 
 /**
  * Delete Scorm tracks for selected users
+ * 
+ * TODO: migrate to StudIP
  *
  * @param array $attemptids list of attempts that need to be deleted
  * @param int $scorm instance
@@ -1252,6 +1336,8 @@ function scorm_delete_responses($attemptids, $scorm) {
 
 /**
  * Delete Scorm tracks for selected users
+ * 
+ * TODO: migrate to StudIP
  *
  * @param int $userid ID of User
  * @param int $scormid ID of Scorm
@@ -1271,6 +1357,9 @@ function scorm_delete_attempt($userid, $scorm, $attemptid) {
 /**
  * Converts SCORM duration notation to human-readable format
  * The function works with both SCORM 1.2 and SCORM 2004 time formats
+ * 
+ * TODO: migrate to StudIP
+ * 
  * @param $duration string SCORM duration
  * @return string human-readable date/time
  */
@@ -1306,6 +1395,25 @@ function scorm_format_duration($duration) {
     return $result;
 }
 
+/**
+ * TODO: migrate to StudIP
+ *
+ * @global type $CFG
+ * @global type $DB
+ * @global type $PAGE
+ * @global type $OUTPUT
+ * @param type $user
+ * @param type $scorm
+ * @param type $cmid
+ * @param type $toclink
+ * @param type $currentorg
+ * @param type $scoid
+ * @param type $mode
+ * @param type $attempt
+ * @param type $play
+ * @param type $tocheader
+ * @return \stdClass 
+ */
 function scorm_get_toc($user,$scorm,$cmid,$toclink=TOCJSLINK,$currentorg='',$scoid='',$mode='normal',$attempt='',$play=false, $tocheader=false) {
     global $CFG, $DB, $PAGE, $OUTPUT;
 

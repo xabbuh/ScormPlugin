@@ -45,6 +45,8 @@ define('SCORM_AICC', 3);
  * Return an array of status options
  *
  * Optionally with translated strings
+ * 
+ * TODO: migrate to StudIP
  *
  * @param   bool    $with_strings   (optional)
  * @return  array
@@ -192,6 +194,8 @@ function scorm_add_instance($scorm, $originalFilename = null, $file = null) {
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -277,6 +281,8 @@ function scorm_update_instance($scorm, $mform=null) {
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
  * and any data that depends on it.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -341,6 +347,8 @@ function scorm_delete_instance($id) {
  * Return a small object with summary information about what a
  * user has done with a given particular instance of this module
  * Used for user activity reports.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @param int $course Course id
@@ -376,6 +384,8 @@ function scorm_user_outline($course, $user, $mod, $scorm) {
 /**
  * Print a detailed representation of what a user has done with
  * a given particular instance of this module, for user activity reports.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -530,6 +540,8 @@ function scorm_user_complete($course, $user, $mod, $scorm) {
  * Function to be run periodically according to the moodle cron
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc ...
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -572,6 +584,8 @@ function scorm_cron () {
 
 /**
  * Return grade for given user or all users.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -610,6 +624,8 @@ function scorm_get_user_grades($scorm, $userid=0) {
 
 /**
  * Update grades in central gradebook
+ * 
+ * TODO: migrate to StudIP
  *
  * @category grade
  * @param object $scorm
@@ -636,6 +652,8 @@ function scorm_update_grades($scorm, $userid=0, $nullifnone=true) {
 
 /**
  * Update all grades in gradebook.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global object
  */
@@ -666,6 +684,8 @@ function scorm_upgrade_grades() {
 
 /**
  * Update/create grade item for given scorm
+ * 
+ * TODO: migrate to StudIP
  *
  * @category grade
  * @uses GRADE_TYPE_VALUE
@@ -725,6 +745,8 @@ function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
 
 /**
  * Delete grade item for given scorm
+ * 
+ * TODO: migrate to StudIP
  *
  * @category grade
  * @param object $scorm object
@@ -782,6 +804,8 @@ function scorm_option2text($scorm) {
 /**
  * Implementation of the function for printing the form elements that control
  * whether the course reset functionality affects the scorm.
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $mform form passed by reference
  */
@@ -801,6 +825,8 @@ function scorm_reset_course_form_defaults($course) {
 
 /**
  * Removes all grades from gradebook
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -824,6 +850,8 @@ function scorm_reset_gradebook($courseid, $type='') {
 /**
  * Actual implementation of the reset course functionality, delete all the
  * scorm attempts for course $data->courseid.
+ * 
+ * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -867,6 +895,8 @@ function scorm_get_extra_capabilities() {
 
 /**
  * Lists all file areas current user may browse
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $course
  * @param object $cm
@@ -882,6 +912,8 @@ function scorm_get_file_areas($course, $cm, $context) {
 
 /**
  * File browsing support for SCORM file areas
+ * 
+ * TODO: migrate to StudIP
  *
  * @package  mod_scorm
  * @category files
@@ -946,6 +978,8 @@ function scorm_get_file_info($browser, $areas, $course, $cm, $context, $filearea
 
 /**
  * Serves scorm content, introduction images and packages. Implements needed access control ;-)
+ * 
+ * TODO: migrate to StudIP
  *
  * @package  mod_scorm
  * @category files
@@ -1031,6 +1065,8 @@ function scorm_supports($feature) {
 
 /**
  * Get the filename for a temp log file
+ * 
+ * TODO: migrate to StudIP
  *
  * @param string $type - type of log(aicc,scorm12,scorm13) used as prefix for filename
  * @param integer $scoid - scoid of object this log entry is for
@@ -1046,6 +1082,8 @@ function scorm_debug_log_filename($type, $scoid) {
 
 /**
  * writes log output to a temp log file
+ * 
+ * TODO: migrate to StudIP
  *
  * @param string $type - type of log(aicc,scorm12,scorm13) used as prefix for filename
  * @param string $text - text to be written to file.
@@ -1065,6 +1103,8 @@ function scorm_debug_log_write($type, $text, $scoid) {
 
 /**
  * Remove debug log file
+ * 
+ * TODO: migrate to StudIP
  *
  * @param string $type - type of log(aicc,scorm12,scorm13) used as prefix for filename
  * @param integer $scoid - scoid of object this log entry is for
@@ -1083,6 +1123,8 @@ function scorm_debug_log_remove($type, $scoid) {
 
 /**
  * writes overview info for course_overview block - displays upcoming scorm objects that have a due date
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $type - type of log(aicc,scorm12,scorm13) used as prefix for filename
  * @param array $htmlarray
@@ -1144,6 +1186,9 @@ function scorm_print_overview($courses, &$htmlarray) {
 
 /**
  * Return a list of page types
+ * 
+ * TODO: migrate to StudIP
+ * 
  * @param string $pagetype current page type
  * @param stdClass $parentcontext Block's parent context
  * @param stdClass $currentcontext Current context of block
@@ -1191,6 +1236,8 @@ function scorm_version_check($scormversion, $version='') {
 /**
  * Obtains the automatic completion state for this scorm based on any conditions
  * in scorm settings.
+ * 
+ * TODO: migrate to StudIP
  *
  * @param object $course Course
  * @param object $cm Course-module
@@ -1288,6 +1335,9 @@ function scorm_get_completion_state($course, $cm, $userid, $type) {
 
 /**
  * Register the ability to handle drag and drop file uploads
+ * 
+ * TODO: migrate to StudIP
+ * 
  * @return array containing details of the files / types the mod can handle
  */
 function scorm_dndupload_register() {
@@ -1298,6 +1348,9 @@ function scorm_dndupload_register() {
 
 /**
  * Handle a file that has been uploaded
+ * 
+ * TODO: migrate to StudIP
+ * 
  * @param object $uploadinfo details of the file / content that has been uploaded
  * @return int instance id of the newly created mod
  */
