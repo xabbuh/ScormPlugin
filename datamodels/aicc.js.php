@@ -239,7 +239,7 @@ require_once($CFG->dirroot.'/mod/scorm/datamodels/callback.js.php');
                         setTimeout('scorm_get_prev();',500);
                     }
                 } else {
-                    if (<?php echo $scorm->auto ?> == 1) {
+                    if (<?php echo (int)$scorm->auto ?> == 1) {
                         setTimeout('scorm_get_next();',500);
                     }
                 }

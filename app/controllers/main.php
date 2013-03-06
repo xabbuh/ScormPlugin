@@ -112,12 +112,11 @@ class MainController extends StudipController
             $scorm->name = Request::get("name");
             $scorm->introduction_text = Request::get("");
             $scorm->scormtype = SCORM_TYPE_LOCAL;
-            $scorm->popup = Request::get("popup");
+            $scorm->popup = Request::int("popup");
             $scorm->grademethod = Request::get("grademethod");
             $scorm->maxgrade = Request::get("maxgrade");
             $scorm->maxattempt = Request::get("maxattempt");
             $scorm->whatgrade = Request::get("whatgrade");
-            $scorm->auto = Request::get("");
             $scorm->course = Request::get("cid");
             
             $timeopen = Request::getArray("timeopen");

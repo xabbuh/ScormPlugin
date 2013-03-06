@@ -114,8 +114,8 @@ function scorm_add_instance($scorm, $originalFilename = null, $file = null) {
     $stmt->bindValue(":type", $scorm->scormtype);
     $stmt->bindValue(":starttime", $scorm->timeopen);
     $stmt->bindValue(":endtime", $scorm->timeclose);
-    $stmt->bindValue(":auto", $scorm->auto);
-    $stmt->bindValue(":popup", $scorm->popup);
+    $stmt->bindValue(":auto", (int)$scorm->auto);
+    $stmt->bindValue(":popup", (int)$scorm->popup);
     $stmt->bindValue(":grademethod", $scorm->grademethod);
     $stmt->bindValue(":maxgrade", $scorm->maxgrade);
     $stmt->bindValue(":maxattempt", $scorm->maxattempt);
