@@ -172,7 +172,7 @@ header('Content-Type: text/html');
                 location = "<?php echo $result ?>";
             }
             else {
-                document.body.innerHTML = "<p>Lädt in <span id='countdown'><?php echo $delayseconds ?></span> Sekunden neu. &nbsp; <?php /*<img src='<?php echo $OUTPUT->pix_url('wait', 'scorm') ?>'>*/?><p>";
+                document.body.innerHTML = "<p>Lädt in <span id='countdown'><?php echo $delayseconds ?></span> Sekunden neu. &nbsp; <img src='<?php echo icon_url('wait', 'scorm') ?>'><p>";
                 var e = document.getElementById("countdown");
                 var cSeconds = parseInt(e.innerHTML);
                 var timer = setInterval(function() {
