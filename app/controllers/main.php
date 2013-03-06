@@ -156,4 +156,21 @@ class MainController extends StudipController
         }
     }
 
+    /**
+     * Controller for deleting SCORM modules.
+     * 
+     * @param int $id The id of the module being removed
+     */
+    public function delete_action($id)
+    {
+        Navigation::activateItem("/course/scorm/overview");
+        
+        if (Request::get("accept") == "yes") {
+            scorm_delete_instance($id);
+            $this->redirect(PluginEngine::getUrl($GLOBALS["plugin"], array(), "main/index"));
+        } else {
+            $this->id = $id;
+            $this->cid = Request::get("cid");
+        }
+    }
 }

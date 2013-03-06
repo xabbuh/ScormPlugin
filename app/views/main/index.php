@@ -4,12 +4,25 @@
 if(count($learningUnits) == 0):
     printf("<p>%s</p>", _("Keine aktiven Lerneinheiten"));
 else:
-    echo "<ul>";
+    echo "<table width='100%'>";
+    echo "<tbody>";
     foreach($learningUnits as $learningUnit):
-        printf('<li><a href="%s">%s</a></li>',
+        echo "<tr>";
+        printf('<td><a href="%s">%s</a></td>',
                 PluginEngine::getLink($GLOBALS["plugin"], array("intro" => "yes"),
                         "main/player/{$learningUnit["id"]}"),
                 $learningUnit["name"]);
+        printf(
+            '<td><a href="%s">%s</a></td>',
+            PluginEngine::getLink(
+                $GLOBALS["plugin"],
+                array(),
+                "main/delete/{$learningUnit["id"]}"
+            ),
+            _("löschen")
+        );
+        echo "</tr>";
     endforeach;
-    echo "</ul>";
+    echo "</tbody>";
+    echo "</table>";
 endif;
