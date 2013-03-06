@@ -281,8 +281,6 @@ function scorm_update_instance($scorm, $mform=null) {
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
  * and any data that depends on it.
- * 
- * TODO: migrate to StudIP
  *
  * @global stdClass
  * @global object
@@ -290,53 +288,48 @@ function scorm_update_instance($scorm, $mform=null) {
  * @return boolean
  */
 function scorm_delete_instance($id) {
-    global $CFG, $DB;
+    $plugin = PluginEngine::getPlugin("ScormPlugin");
+    $db = DBManager::get();
 
-    if (! $scorm = $DB->get_record('scorm', array('id'=>$id))) {
+    $scorm = $plugin->getLearningUnitAsObject($id);
+    if (!$scorm) {
         return false;
     }
 
     $result = true;
 
     // Delete any dependent records
-    if (! $DB->delete_records('scorm_scoes_track', array('scormid'=>$scorm->id))) {
+    $stmt = $db->prepare("DELETE FROM `scorm_sco_tracks` WHERE
+        `learning_unit_id` = :id");
+    $stmt->bindValue(":id", $id);
+    if (! $stmt->execute()) {
         $result = false;
     }
-    if ($scoes = $DB->get_records('scorm_scoes', array('scorm'=>$scorm->id))) {
+    $stmt = $db->prepare("SELECT `id` FROM `scorm_scos`
+        WHERE `learning_unit_id` = :id");
+    $stmt->bindValue(":id", $id);
+    $stmt->execute();
+    $scoes = $stmt->fetchAll(PDO::FETCH_OBJ);
+    if ($scoes) {
         foreach ($scoes as $sco) {
-            if (! $DB->delete_records('scorm_scoes_data', array('scoid'=>$sco->id))) {
+            $stmt = $db->prepare("DELETE FROM `scorm_sco_data` WHERE `sco_id` = :scoid");
+            $stmt->bindValue(":scoid", $sco->id);
+            if (!$stmt->execute()) {
                 $result = false;
             }
         }
-        $DB->delete_records('scorm_scoes', array('scorm'=>$scorm->id));
+        $stmt = $db->prepare("DELETE FROM `scorm_scos` WHERE
+            `learning_unit_id` = :id");
+        $stmt->bindValue(":id", $id);
+        $stmt->execute();
     } else {
         $result = false;
     }
-    if (! $DB->delete_records('scorm', array('id'=>$scorm->id))) {
+    $stmt = $db->prepare("DELETE FROM `scorm_learning_units` WHERE `id` = :id");
+    $stmt->bindValue(":id", $id);
+    if (!$stmt->execute()) {
         $result = false;
     }
-
-    /*if (! $DB->delete_records('scorm_sequencing_controlmode', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }
-    if (! $DB->delete_records('scorm_sequencing_rolluprules', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }
-    if (! $DB->delete_records('scorm_sequencing_rolluprule', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }
-    if (! $DB->delete_records('scorm_sequencing_rollupruleconditions', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }
-    if (! $DB->delete_records('scorm_sequencing_rolluprulecondition', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }
-    if (! $DB->delete_records('scorm_sequencing_rulecondition', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }
-    if (! $DB->delete_records('scorm_sequencing_ruleconditions', array('scormid'=>$scorm->id))) {
-        $result = false;
-    }*/
 
     scorm_grade_item_delete($scorm);
 
@@ -753,10 +746,10 @@ function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
  * @return object grade_item
  */
 function scorm_grade_item_delete($scorm) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    return grade_update('mod/scorm', $scorm->course, 'mod', 'scorm', $scorm->id, 0, null, array('deleted'=>1));
+//    global $CFG;
+//    require_once($CFG->libdir.'/gradelib.php');
+//
+//    return grade_update('mod/scorm', $scorm->course, 'mod', 'scorm', $scorm->id, 0, null, array('deleted'=>1));
 }
 
 /**
