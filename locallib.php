@@ -1663,3 +1663,31 @@ function scorm_get_toc($user,$scorm,$cmid,$toclink=TOCJSLINK,$currentorg='',$sco
 
     return $result;
 }
+
+/**
+ * Returns the absolute url to an icon.
+ * 
+ * @param string $icon The name of the icon
+ * @param string $namespace  The icon namespace
+ * @return string The url
+ */
+function icon_url($icon, $namespace)
+{
+    $plugin = PluginEngine::getPlugin("ScormPlugin");
+    
+    return $plugin->getPluginUrl() . "/assets/icons/$namespace/$icon.gif";
+}
+
+/**
+ * Returns a human readable string for namespaced key.
+ * 
+ * TODO: needs implementation
+ *
+ * @param string $string The key
+ * @param string $namespace The namespace
+ * @return string The generated string
+ */
+function get_string($string, $namespace)
+{
+    return $string;
+}
