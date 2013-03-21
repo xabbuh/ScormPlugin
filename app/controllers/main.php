@@ -108,7 +108,7 @@ class MainController extends StudipController
     {
         Navigation::activateItem("/course/scorm/add");
         
-        if (Request::get("action") == "save") {
+        if (Request::get("action") == "save" && Request::get("accept") == "yes") {
             // check form values
             $this->errors = array();
             if (strlen(Request::get("name")) < 3) {
@@ -176,6 +176,8 @@ class MainController extends StudipController
                     $_FILES["packagefilechoose"]["tmp_name"]);
                 $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/index"));
             }
+        } else if (Request::get("action") == "save" && Request::get("cancel") == "yes") {
+            $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/index"));
         } else {
             $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/add"));
         }

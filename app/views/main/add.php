@@ -223,6 +223,7 @@ $actionUrl = PluginEngine::getURL($GLOBALS["plugin"], array(), "main/save");
     </fieldset>
     
     <?php
-    echo Studip\Button::createAccept(_("Speichern"));
+    echo Studip\Button::createAccept(_("Speichern"), null, array("value" => "yes"));
+    echo Studip\Button::createCancel(_("Abbrechen"), null, array("value" => "yes"));
     ?>
 </form>
