@@ -106,51 +106,76 @@ class MainController extends StudipController
     
     function save_action()
     {
-        // TODO: check form values
+        Navigation::activateItem("/course/scorm/add");
+        
         if (Request::get("action") == "save") {
-            $scorm = new stdClass();
-            $scorm->name = Request::get("name");
-            $scorm->introduction_text = Request::get("");
-            $scorm->scormtype = SCORM_TYPE_LOCAL;
-            $scorm->popup = Request::int("popup");
-            $scorm->grademethod = Request::get("grademethod");
-            $scorm->maxgrade = Request::get("maxgrade");
-            $scorm->maxattempt = Request::get("maxattempt");
-            $scorm->whatgrade = Request::get("whatgrade");
-            $scorm->course = Request::get("cid");
-            
-            $timeopen = Request::getArray("timeopen");
-            if (is_array($timeopen) && isset($timeopen["enabled"])) {
-                $scorm->timeopen = sprintf(
-                    "%d-%02d-%02d %02d:%02d:00",
-                    $timeopen["year"],
-                    $timeopen["month"],
-                    $timeopen["day"],
-                    $timeopen["hour"],
-                    $timeopen["minute"]
-                );
-            } else {
-                $scorm->timeopen = null;
+            // check form values
+            $this->errors = array();
+            if (strlen(Request::get("name")) < 3) {
+                $this->errors[] = _("Kein Name für das Lernmodul angegeben.");
             }
-            $timeclose = Request::getArray("timeclose");
-            if (is_array($timeclose) && isset($timeclose["enabled"])) {
-                $scorm->timeclose = sprintf(
-                    "%d-%02d-%02d %02d:%02d:00",
-                    $timeclose["year"],
-                    $timeclose["month"],
-                    $timeclose["day"],
-                    $timeclose["hour"],
-                    $timeclose["minute"]
-                );
-            } else {
-                $scorm->timeclose = null;
+            switch ($_FILES["packagefilechoose"]["error"]) {
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $this->errors[] = _("Die ausgewählte Lernmoduldatei ist zu groß.");
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    $this->errors[] = _("Bitte eine Lernmoduldatei auswählen.");
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                case UPLOAD_ERR_NO_TMP_DIR:
+                case UPLOAD_ERR_CANT_WRITE:
+                case UPLOAD_ERR_EXTENSION:
+                    $this->errors[] = _("Fehler beim Hochladen der Lernmoduldatei.");
+                    break;
             }
             
-            scorm_add_instance(
-                $scorm,
-                $_FILES["packagefilechoose"]["name"],
-                $_FILES["packagefilechoose"]["tmp_name"]);
-            $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/index"));
+            // save the module if not errors occured
+            if (count($this->errors) == 0) {
+                $scorm = new stdClass();
+                $scorm->name = Request::get("name");
+                $scorm->introduction_text = Request::get("");
+                $scorm->scormtype = SCORM_TYPE_LOCAL;
+                $scorm->popup = Request::int("popup");
+                $scorm->grademethod = Request::get("grademethod");
+                $scorm->maxgrade = Request::get("maxgrade");
+                $scorm->maxattempt = Request::get("maxattempt");
+                $scorm->whatgrade = Request::get("whatgrade");
+                $scorm->course = Request::get("cid");
+
+                $timeopen = Request::getArray("timeopen");
+                if (is_array($timeopen) && isset($timeopen["enabled"])) {
+                    $scorm->timeopen = sprintf(
+                        "%d-%02d-%02d %02d:%02d:00",
+                        $timeopen["year"],
+                        $timeopen["month"],
+                        $timeopen["day"],
+                        $timeopen["hour"],
+                        $timeopen["minute"]
+                    );
+                } else {
+                    $scorm->timeopen = null;
+                }
+                $timeclose = Request::getArray("timeclose");
+                if (is_array($timeclose) && isset($timeclose["enabled"])) {
+                    $scorm->timeclose = sprintf(
+                        "%d-%02d-%02d %02d:%02d:00",
+                        $timeclose["year"],
+                        $timeclose["month"],
+                        $timeclose["day"],
+                        $timeclose["hour"],
+                        $timeclose["minute"]
+                    );
+                } else {
+                    $scorm->timeclose = null;
+                }
+
+                scorm_add_instance(
+                    $scorm,
+                    $_FILES["packagefilechoose"]["name"],
+                    $_FILES["packagefilechoose"]["tmp_name"]);
+                $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/index"));
+            }
         } else {
             $this->redirect(PluginEngine::getURL($GLOBALS["plugin"], array(), "main/add"));
         }
