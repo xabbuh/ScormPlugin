@@ -14,11 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+global $CFG;
+$CFG = new \stdClass();
+$CFG->libdir = __DIR__."/lib";
+$CFG->yui2version = "2.9.0";
+
 define("MOODLE_INTERNAL", true);
 require_once(__DIR__  . "/lib.php");
-require_once(__DIR__."/outputcomponents.php");
-require_once(__DIR__."/outputrenderers.php");
+require_once(__DIR__."/lib/moodlelib.php");
+require_once(__DIR__."/lib/outputcomponents.php");
+require_once(__DIR__."/lib/outputlib.php");
+require_once(__DIR__."/lib/outputrenderers.php");
+require_once(__DIR__."/lib/pagelib.php");
+require_once(__DIR__."/lib/weblib.php");
 //require_once("$CFG->libdir/filelib.php");
+
+global $OUTPUT;
+$OUTPUT = new core_renderer(new moodle_page(), "");
 
 /// Constants and settings for module scorm
 define('SCORM_UPDATE_NEVER', '0');
