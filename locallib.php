@@ -1690,7 +1690,7 @@ function icon_url($icon, $namespace)
  * @param string $namespace The namespace
  * @return string The generated string
  */
-function get_string($string, $namespace)
+function get_string($string, $namespace = "scorm")
 {
     return $string;
 }
