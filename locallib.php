@@ -1694,3 +1694,8 @@ function get_string($string, $namespace)
 {
     return $string;
 }
+
+function print_error($error)
+{
+    echo $error;
+}
