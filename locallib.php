@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+define("MOODLE_INTERNAL", true);
 require_once(__DIR__  . "/lib.php");
+require_once(__DIR__."/outputcomponents.php");
+require_once(__DIR__."/outputrenderers.php");
 //require_once("$CFG->libdir/filelib.php");
 
 /// Constants and settings for module scorm
