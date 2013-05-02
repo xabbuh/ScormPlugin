@@ -33,6 +33,7 @@ class MainController extends StudipController
     {
         $plugin = $GLOBALS["plugin"];
         $this->learningUnit = $plugin->getLearningUnit($id);
+        $this->scorm = $plugin->getLearningUnitAsObject($id);
         
         $url = PluginEngine::getURL($plugin, array(),
                 "main/player/$id");

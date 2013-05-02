@@ -837,12 +837,14 @@ function scorm_course_format_display($user, $course) {
  */
 function scorm_view_display ($user, $scorm, $action, $cm) {
     global $CFG, $DB, $PAGE, $OUTPUT;
+    
+    $db = DBManager::get();
 
     if ($scorm->scormtype != SCORM_TYPE_LOCAL && $scorm->updatefreq == SCORM_UPDATE_EVERYTIME) {
         scorm_parse($scorm, false);
     }
 
-    $organization = optional_param('organization', '', PARAM_INT);
+    $organization = Request::int("organization", "");
 
     if ($scorm->displaycoursestructure == 1) {
         echo $OUTPUT->box_start('generalbox boxaligncenter toc');
@@ -853,16 +855,22 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
     if (empty($organization)) {
         $organization = $scorm->launch;
     }
-    if ($orgs = $DB->get_records_select_menu('scorm_scoes', 'scorm = ? AND '.
-                                         $DB->sql_isempty('scorm_scoes', 'launch', false, true).' AND '.
-                                         $DB->sql_isempty('scorm_scoes', 'organization', false, false),
-                                         array($scorm->id), 'id', 'id,title')) {
-        if (count($orgs) > 1) {
-            $select = new single_select(new moodle_url($action), 'organization', $orgs, $organization, null);
-            $select->label = get_string('organizations', 'scorm');
-            $select->class = 'scorm-center';
-            echo $OUTPUT->render($select);
-        }
+    
+    $stmt = $db->prepare(
+        "SELECT `id`, `title` FROM `scorm_scos` WHERE `learning_unit_id` = :id
+            AND `organization` = '' AND `launch` = ''"
+    );
+    $stmt->bindValue(":id", $scorm->id);
+    $stmt->execute();
+    $orgs = array();
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $org) {
+        $orgs[$org["id"]] = $org["title"];
+    }
+    if (count($orgs) > 1) {
+        $select = new single_select(new moodle_url($action), 'organization', $orgs, $organization, null);
+        $select->label = get_string('organizations', 'scorm');
+        $select->class = 'scorm-center';
+        echo $OUTPUT->render($select);
     }
     $orgidentifier = '';
     if ($sco = scorm_get_sco($organization, SCO_ONLY)) {
@@ -873,11 +881,11 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
         }
     }
 
-    $scorm->version = strtolower(clean_param($scorm->version, PARAM_SAFEDIR));   // Just to be safe
-    if (!file_exists($CFG->dirroot.'/mod/scorm/datamodels/'.$scorm->version.'lib.php')) {
+    $scorm->version = strtolower($scorm->version);   // Just to be safe
+    if (!file_exists(__DIR__.'/'.$scorm->version.'lib.php')) {
         $scorm->version = 'scorm_12';
     }
-    require_once($CFG->dirroot.'/mod/scorm/datamodels/'.$scorm->version.'lib.php');
+    require_once(__DIR__.'/'.$scorm->version.'lib.php');
 
     $result = scorm_get_toc($user, $scorm, $cm->id, TOCFULLURL, $orgidentifier);
     $incomplete = $result->incomplete;
@@ -898,7 +906,7 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
                <form id="scormviewform" method="post" action="<?php echo $CFG->wwwroot ?>/mod/scorm/player.php">
         <?php
         if ($scorm->hidebrowse == 0) {
-            print_string('mode', 'scorm');
+            echo get_string('mode', 'scorm');
             echo ': <input type="radio" id="b" name="mode" value="browse" /><label for="b">'.get_string('browse', 'scorm').'</label>'."\n";
             echo '<input type="radio" id="n" name="mode" value="normal" checked="checked" /><label for="n">'.get_string('normal', 'scorm')."</label>\n";
         } else {
@@ -923,7 +931,7 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
               <input type="hidden" name="scoid"/>
               <input type="hidden" name="cm" value="<?php echo $cm->id ?>"/>
               <input type="hidden" name="currentorg" value="<?php echo $orgidentifier ?>" />
-              <input type="submit" value="<?php print_string('enter', 'scorm') ?>" />
+              <input type="submit" value="<?php echo get_string('enter', 'scorm') ?>" />
               </form>
           </div>
         <?php
@@ -1710,4 +1718,9 @@ function get_string($string, $namespace = "scorm")
 function print_error($error)
 {
     echo $error;
+}
+
+function sesskey()
+{
+    return "";
 }
