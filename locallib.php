@@ -903,7 +903,7 @@ function scorm_view_display ($user, $scorm, $action, $cm) {
     if ($scorm->lastattemptlock == 0 || $result->attemptleft > 0) {
         ?>
             <div class="scorm-center">
-               <form id="scormviewform" method="post" action="<?php echo $CFG->wwwroot ?>/mod/scorm/player.php">
+               <form id="scormviewform" method="post" action="<?php echo $action ?>">
         <?php
         if ($scorm->hidebrowse == 0) {
             echo get_string('mode', 'scorm');
