@@ -611,7 +611,6 @@ function scorm_get_user_data($userid) {
  * @return null 
  */
 function scorm_grade_user_attempt($scorm, $userid, $attempt=1) {
-    global $DB;
     $attemptscore = new stdClass();
     $attemptscore->scoes = 0;
     $attemptscore->values = 0;
@@ -619,9 +618,11 @@ function scorm_grade_user_attempt($scorm, $userid, $attempt=1) {
     $attemptscore->sum = 0;
     $attemptscore->lastmodify = 0;
 
-    if (!$scoes = $DB->get_records('scorm_scoes', array('scorm'=>$scorm->id))) {
-        return null;
-    }
+    $db = DBManager::get();
+    $stmt = $db->prepare("SELECT * FROM `scorm_scos` WHERE `learning_unit_id` = :id");
+    $stmt->bindValue(":id", $scorm->id);
+    $stmt->execute();
+    $scoes = $stmt->fetchAll(PDO::FETCH_OBJ);
 
     foreach ($scoes as $sco) {
         if ($userdata=scorm_get_tracks($sco->id, $userid, $attempt)) {
