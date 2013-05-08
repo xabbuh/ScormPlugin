@@ -138,10 +138,36 @@ class MainController extends StudipController
                 $scorm->introduction_text = Request::get("");
                 $scorm->scormtype = SCORM_TYPE_LOCAL;
                 $scorm->popup = Request::int("popup");
-                $scorm->grademethod = Request::get("grademethod");
+                switch(Request::int("grademethod")) {
+                    case GRADESCOES:
+                        $scorm->grademethod = "count";
+                        break;
+                    case GRADEHIGHEST:
+                        $scorm->grademethod = "max";
+                        break;
+                    case GRADEAVERAGE:
+                        $scorm->grademethod = "average";
+                        break;
+                    case GRADESUM:
+                        $scorm->grademethod = "sum";
+                        break;
+                }
                 $scorm->maxgrade = Request::get("maxgrade");
                 $scorm->maxattempt = Request::get("maxattempt");
-                $scorm->whatgrade = Request::get("whatgrade");
+                switch(Request::int("whatgrade")) {
+                    case HIGHESTATTEMPT:
+                        $scorm->whatgrade = "best";
+                        break;
+                    case AVERAGEATTEMPT:
+                        $scorm->whatgrade = "average";
+                        break;
+                    case FIRSTATTEMPT:
+                        $scorm->whatgrade = "first";
+                        break;
+                    case LASTATTEMPT:
+                        $scorm->whatgrade = "last";
+                        break;
+                }
                 $scorm->course = Request::get("cid");
 
                 $timeopen = Request::getArray("timeopen");
