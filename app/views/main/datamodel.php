@@ -25,11 +25,11 @@ if (!empty($scoid)) {
         $element = str_replace('__', '.', $element);
         if (substr($element, 0, 3) == 'cmi') {
             $netelement = preg_replace('/\.N(\d+)\./', "\.\$1\.", $element);
-            $result = scorm_insert_track($USER->id, $scorm->id, $scoid, $attempt, $element, $value, $scorm->forcecompleted) && $result;
+            $result = scorm_insert_track($user->id, $scorm->id, $scoid, $attempt, $element, $value, $scorm->forcecompleted) && $result;
         }
         if (substr($element, 0, 15) == 'adl.nav.request') {
             // SCORM 2004 Sequencing Request
-            require_once($CFG->dirroot.'/mod/scorm/datamodels/sequencinglib.php');
+            require_once(__DIR__.'/../../../datamodels/sequencinglib.php');
 
             $search = array('@continue@', '@previous@', '@\{target=(\S+)\}choice@', '@exit@', '@exitAll@', '@abandon@', '@abandonAll@');
             $replace = array('continue_', 'previous_', '\1', 'exit_', 'exitall_', 'abandon_', 'abandonall');

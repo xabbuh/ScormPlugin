@@ -235,7 +235,11 @@ class MainController extends StudipController
      */
     public function datamodel_action()
     {
+        global $user;
+
         $this->set_layout(null);
+
+        $this->user = $user;
         
         // Course Module ID, or
         $this->id = Request::int("id");
