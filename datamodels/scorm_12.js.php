@@ -16,6 +16,8 @@
 
 require_once(__DIR__ . '/../locallib.php');
 
+global $CFG;
+
 if (isset($userdata->status)) {
     if ($userdata->status == '') {
         $userdata->entry = 'ab-initio';
@@ -669,11 +671,8 @@ function SCORMapi1_2() {
         datastring += '&scoid=<?php echo $scoid ?>';
 
         var myRequest = NewHttpReq();
-        <?php
-        $pluginUrl = $GLOBALS["plugin"]->getPluginUrl();
-        ?>
-        //alert('going to:' + "<?php echo $pluginurl ?>/datamodel.php" + "id=<?php echo $id ?>&a=<?php echo $a ?>"+datastring);
-        result = DoRequest(myRequest,"<?php echo $pluginurl ?>/datamodel.php","id=<?php echo $id ?>&a=<?php echo $a ?>"+datastring);
+        //alert('going to:' + "<?php p(PluginEngine::getURL($CFG->plugin, array(), "main/datamodel")) ?>" + "id=<?php echo $id ?>&a=<?php echo $a ?>"+datastring);
+        result = DoRequest(myRequest,"<?php p(PluginEngine::getURL($CFG->plugin, array(), "main/datamodel")) ?>","id=<?php echo $id ?>&a=<?php echo $a ?>"+datastring);
         results = String(result).split('\n');
         errorCode = results[1];
         return results[0];

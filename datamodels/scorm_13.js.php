@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once($CFG->dirroot.'/mod/scorm/locallib.php');
+require_once(__DIR__.'/../locallib.php');
+
+global $CFG;
 
 if (isset($userdata->status)) {
     if (!isset($userdata->{'cmi.exit'}) || (($userdata->{'cmi.exit'} == 'time-out') || ($userdata->{'cmi.exit'} == 'normal'))) {
@@ -1270,7 +1272,7 @@ function SCORMapi1_3() {
         datastring += '&attempt=<?php echo $attempt ?>';
         datastring += '&scoid=<?php echo $scoid ?>';
         var myRequest = NewHttpReq();
-        var result = DoRequest(myRequest,"<?php p($CFG->wwwroot) ?>/mod/scorm/datamodel.php","id=<?php p($id) ?>&a=<?php p($a) ?>&sesskey=<?php echo sesskey() ?>"+datastring);
+        var result = DoRequest(myRequest,"<?php p(PluginEngine::getURL($CFG->plugin, array(), "main/datamodel")) ?>","id=<?php p($id) ?>&a=<?php p($a) ?>&sesskey=<?php echo sesskey() ?>"+datastring);
         var results = String(result).split('\n');
         if ((results.length > 2) && (navrequest != '')) {
             eval(results[2]);

@@ -14,10 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+$plugin = PluginEngine::getPlugin("ScormPlugin");
+/**
+ * @var StudipPlugin $plugin
+ */
+
 global $CFG;
 $CFG = new \stdClass();
 $CFG->libdir = __DIR__."/lib";
 $CFG->yui2version = "2.9.0";
+$CFG->wwwroot = $plugin->getPluginURL();
+$CFG->plugin = $plugin;
 
 define("MOODLE_INTERNAL", true);
 require_once(__DIR__  . "/lib.php");

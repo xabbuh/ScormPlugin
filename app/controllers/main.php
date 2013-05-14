@@ -229,4 +229,24 @@ class MainController extends StudipController
             $this->cid = Request::get("cid");
         }
     }
+
+    /**
+     * Load the datamodel of a scorm object.
+     */
+    public function datamodel_action()
+    {
+        $this->set_layout(null);
+        
+        // Course Module ID, or
+        $this->id = Request::int("id");
+
+        // scorm ID
+        $this->a = Request::int("a");
+
+        // sco ID
+        $this->scoid = Request::int("scoid");
+
+        // attempt number
+        $this->attempt = Request::int("attempt");
+    }
 }

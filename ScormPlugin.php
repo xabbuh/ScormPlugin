@@ -25,9 +25,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require_once __DIR__ . "/lib.php";
-require_once __DIR__ . "/locallib.php";
-
 /**
  * Description of ScormPlugin
  *
@@ -152,3 +149,6 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         return $this->getPackagesPath() . "/$id/contents";
     }
 }
+
+require_once __DIR__ . "/lib.php";
+require_once __DIR__ . "/locallib.php";

@@ -557,7 +557,7 @@ require_once($CFG->dirroot.'/mod/scorm/datamodels/callback.js.php');
 
         //popupwin(datastring);
         var myRequest = NewHttpReq();
-        result = DoRequest(myRequest,"<?php p($CFG->wwwroot) ?>/mod/scorm/datamodel.php","id=<?php p($id) ?>&sesskey=<?php echo sesskey() ?>"+datastring);
+        result = DoRequest(myRequest,"<?php p(PluginEngine::getURL($CFG->plugin, array(), "main/datamodel")) ?>","id=<?php p($id) ?>&sesskey=<?php echo sesskey() ?>"+datastring);
         results = String(result).split('\n');
         errorCode = results[1];
         return results[0];
