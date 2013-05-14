@@ -6159,8 +6159,8 @@ function current_language() {
     if (!empty($COURSE->id) and $COURSE->id != SITEID and !empty($COURSE->lang)) {    // Course language can override all other settings for this page
         $return = $COURSE->lang;
 
-    } else if (!empty($SESSION->lang)) {    // Session language can override other settings
-        $return = $SESSION->lang;
+    } else if (!empty($_SESSION["_language"])) {    // Session language can override other settings
+        $return = $_SESSION["_language"];
 
     } else if (!empty($USER->lang)) {
         $return = $USER->lang;
@@ -6419,11 +6419,11 @@ class core_string_manager implements string_manager {
         if ($lang === 'en') {
             return array();
         }
-        if (!file_exists("$this->otherroot/$lang/langconfig.php")) {
+        if (!file_exists(__DIR__."/../lang/$lang/langconfig.php")) {
             return array();
         }
         $string = array();
-        include("$this->otherroot/$lang/langconfig.php");
+        include(__DIR__."/../lang/$lang/langconfig.php");
 
         if (empty($string['parentlanguage'])) {
             return array($lang);
@@ -6469,6 +6469,7 @@ class core_string_manager implements string_manager {
         }
 
         // no cache found - let us merge all possible sources of the strings
+        $location = __DIR__."/..";
         if ($plugintype === 'core') {
             $file = $pluginname;
             if ($file === null) {
@@ -6476,10 +6477,10 @@ class core_string_manager implements string_manager {
             }
             $string = array();
             // first load english pack
-            if (!file_exists(__DIR__."/../lang/en/$file.php")) {
+            if (!file_exists("$location/lang/en/$file.php")) {
                 return array();
             }
-            include(__DIR__."/../lang/en/$file.php");
+            include("$location/lang/en/$file.php");
             $originalkeys = array_keys($string);
             $originalkeys = array_flip($originalkeys);
 
@@ -6491,8 +6492,8 @@ class core_string_manager implements string_manager {
             $deps = $this->get_language_dependencies($lang);
             foreach ($deps as $dep) {
                 // the main lang string location
-                if (file_exists("$this->otherroot/$dep/$file.php")) {
-                    include("$this->otherroot/$dep/$file.php");
+                if (file_exists("$location/lang/$dep/$file.php")) {
+                    include("$location/lang/$dep/$file.php");
                 }
                 if (!$disablelocal and file_exists("$this->localroot/{$dep}_local/$file.php")) {
                     include("$this->localroot/{$dep}_local/$file.php");
@@ -6500,7 +6501,6 @@ class core_string_manager implements string_manager {
             }
 
         } else {
-            $location = __DIR__."/..";
             if (!is_dir($location)) {
                 return array();
             }
@@ -6527,13 +6527,9 @@ class core_string_manager implements string_manager {
             // now loop through all langs in correct order
             $deps = $this->get_language_dependencies($lang);
             foreach ($deps as $dep) {
-                // legacy location - used by contrib only
+                // the main lang string location
                 if (file_exists("$location/lang/$dep/$file.php")) {
                     include("$location/lang/$dep/$file.php");
-                }
-                // the main lang string location
-                if (file_exists("$this->otherroot/$dep/$file.php")) {
-                    include("$this->otherroot/$dep/$file.php");
                 }
                 // local customisations
                 if (!$disablelocal and file_exists("$this->localroot/{$dep}_local/$file.php")) {
