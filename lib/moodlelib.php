@@ -6476,10 +6476,10 @@ class core_string_manager implements string_manager {
             }
             $string = array();
             // first load english pack
-            if (!file_exists("$CFG->dirroot/lang/en/$file.php")) {
+            if (!file_exists(__DIR__."/../lang/en/$file.php")) {
                 return array();
             }
-            include("$CFG->dirroot/lang/en/$file.php");
+            include(__DIR__."/../lang/en/$file.php");
             $originalkeys = array_keys($string);
             $originalkeys = array_flip($originalkeys);
 
@@ -6500,7 +6500,8 @@ class core_string_manager implements string_manager {
             }
 
         } else {
-            if (!$location = get_plugin_directory($plugintype, $pluginname) or !is_dir($location)) {
+            $location = __DIR__."/..";
+            if (!is_dir($location)) {
                 return array();
             }
             if ($plugintype === 'mod') {
@@ -7226,8 +7227,6 @@ class install_string_manager implements string_manager {
  *      the string itself. The string then isn't calculated until it is first used.
  * @return string The localized string.
  */
-// TODO: check for replacement
-/*
 function get_string($identifier, $component = '', $a = NULL, $lazyload = false) {
     global $CFG;
 
@@ -7283,7 +7282,6 @@ function get_string($identifier, $component = '', $a = NULL, $lazyload = false) 
     }
     return $result;
 }
-*/
 
 /**
  * Converts an array of strings to their localized value.

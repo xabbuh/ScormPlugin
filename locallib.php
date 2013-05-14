@@ -1702,20 +1702,6 @@ function icon_url($icon, $namespace)
     return $plugin->getPluginUrl() . "/assets/icons/$namespace/$icon.gif";
 }
 
-/**
- * Returns a human readable string for namespaced key.
- * 
- * TODO: needs implementation
- *
- * @param string $string The key
- * @param string $namespace The namespace
- * @return string The generated string
- */
-function get_string($string, $namespace = "scorm")
-{
-    return $string;
-}
-
 function print_error($error)
 {
     echo $error;
