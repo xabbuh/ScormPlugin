@@ -586,12 +586,19 @@ function scorm_cron () {
  * @param int $userid optional user id, 0 means all users
  * @return array array of grades, false if none
  */
-function scorm_get_user_grades($scorm, $userid=0) {
-    global $CFG, $DB;
+function scorm_get_user_grades($scorm, $userid = "") {
+    $db = DBManager::get();
 
     $grades = array();
     if (empty($userid)) {
-        if ($scousers = $DB->get_records_select('scorm_scoes_track', "scormid=? GROUP BY userid", array($scorm->id), "", "userid,null")) {
+        $stmt = $db->prepare(
+            "SELECT `user_id`, null FROM `scorm_sco_tracks` WHERE `learning_unit_id` = :luid
+            GROUP BY `user_id`"
+        );
+        $stmt->bindValue(":luid", $scorm->id);
+        $stmt->execute();
+        $scousers = $stmt->fetchAll(PDO::FETCH_OBJ);
+        if ($scousers) {
             foreach ($scousers as $scouser) {
                 $grades[$scouser->userid] = new stdClass();
                 $grades[$scouser->userid]->id         = $scouser->userid;
@@ -603,7 +610,14 @@ function scorm_get_user_grades($scorm, $userid=0) {
         }
 
     } else {
-        if (!$DB->get_records_select('scorm_scoes_track', "scormid=? AND userid=? GROUP BY userid", array($scorm->id, $userid), "", "userid,null")) {
+        $stmt = $db->prepare(
+            "SELECT `user_id`, null FROM `scorm_sco_tracks` WHERE `learning_unit_id` = :luid
+            AND `user_id` = :userid GROUP BY `user_id`"
+        );
+        $stmt->bindValue(":luid", $scorm->id);
+        $stmt->bindValue(":userid", $userid);
+        $stmt->execute();
+        if (!$stmt->fetchAll(PDO::FETCH_OBJ)) {
             return false; //no attempt yet
         }
         $grades[$userid] = new stdClass();
