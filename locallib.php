@@ -503,7 +503,7 @@ function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $valu
         (in_array($element, array('cmi.completion_status', 'cmi.core.lesson_status', 'cmi.success_status'))
          && in_array($track->value, array('completed', 'passed')))) {
         $stmt = $db->prepare("SELECT * FROM `scorm_learning_units` WHERE `id` = :luid");
-        $stmt->bindValue(":luid", $scoid);
+        $stmt->bindValue(":luid", $scormid);
         $stmt->execute();
         $scorm = $stmt->fetchObject();
         include_once(__DIR__.'/lib.php');
