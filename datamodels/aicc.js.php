@@ -244,7 +244,21 @@ require_once($CFG->dirroot.'/mod/scorm/datamodels/callback.js.php');
                     }
                 }
                 // trigger TOC update
-                var sURL = "<?php echo $CFG->wwwroot; ?>" + "/mod/scorm/prereqs.php?a=<?php echo $scorm->id ?>&scoid=<?php echo $scoid ?>&attempt=<?php echo $attempt ?>&mode=<?php echo $mode ?>&currentorg=<?php echo $currentorg ?>&sesskey=<?php echo sesskey(); ?>";
+                <?php
+                $url = PluginEngine::getURL(
+                    $CFG->plugin,
+                    array(
+                        "a" => $scorm->id,
+                        "scoid" => $scoid,
+                        "attempt" => $attempt,
+                        "mode" => $mode,
+                        "currentorg" => $currentorg,
+                        "sesskey" => sesskey(),
+                    ),
+                    "main/prereqs"
+                );
+                ?>
+                var sURL = "<?php echo $url; ?>";
                 YAHOO.util.Connect.asyncRequest('GET', sURL, this.connectPrereqCallback, null);
                 return "true";
             } else {

@@ -73,7 +73,20 @@
 
         failure: function(o) {
             // do some sort of error handling
-            var sURL = "<?php echo $CFG->wwwroot; ?>" + "/mod/scorm/prereqs.php?a=<?php echo $scorm->id ?>&scoid=<?php echo $scoid ?>&attempt=<?php echo $attempt ?>&mode=<?php echo $mode ?>&currentorg=<?php echo $currentorg ?>";
+            <?php
+            $url = PluginEngine::getURL(
+                $CFG->plugin,
+                array(
+                    "a" => $scorm->id,
+                    "scoid" => $scoid,
+                    "attempt" => $attempt,
+                    "mode" => $mode,
+                    "currentorg" => $currentorg,
+                ),
+                "main/prereqs"
+            );
+            ?>
+            var sURL = "<?php echo $url; ?>";
             //TODO: Enable this error handing correctly - avoiding issues when closing player MDL-23470 
             //alert('Prerequisites update failed - must restart SCORM player');
             //window.location.href = sURL;

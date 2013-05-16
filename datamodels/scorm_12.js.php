@@ -236,7 +236,20 @@ function SCORMapi1_2() {
                     }
                 ?>
                 // trigger TOC update
-                var sURL = "<?php echo $CFG->wwwroot; ?>" + "/mod/scorm/prereqs.php?a=<?php echo $scorm->id ?>&scoid=<?php echo $scoid ?>&attempt=<?php echo $attempt ?>&mode=<?php echo $mode ?>&currentorg=<?php echo $currentorg ?>";
+                <?php
+                $url = PluginEngine::getURL(
+                    $CFG->plugin,
+                    array(
+                        "a" => $scorm->id,
+                        "scoid" => $scoid,
+                        "attempt" => $attempt,
+                        "mode" => $mode,
+                        "currentorg" => $currentorg,
+                    ),
+                    "main/prereqs"
+                );
+                ?>
+                var sURL = "<?php echo $url ?>";
                 YAHOO.util.Connect.asyncRequest('GET', sURL, this.connectPrereqCallback, null);
                 return result;
             } else {

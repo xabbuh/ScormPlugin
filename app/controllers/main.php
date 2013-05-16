@@ -227,4 +227,34 @@ class MainController extends StudipController
         // attempt number
         $this->attempt = Request::int("attempt");
     }
+
+    /**
+     * Action to repopulate the table of contents after LMSFinish() is called.
+     */
+    public function prereqs_action()
+    {
+        global $CFG;
+
+        $this->set_layout(null);
+
+        $this->CFG = $CFG;
+
+        // Course Module ID, or
+        $this->id = Request::int("id");
+
+        // scorm ID
+        $this->a = Request::int("a");
+
+        // sco ID
+        $this->scoid = Request::int("scoid");
+
+        // attempt number
+        $this->attempt = Request::int("attempt");
+
+        // navigation mode
+        $this->mode = Request::get("mode");
+
+        // selected organization
+        $this->currentorg = Request::get("currentorg");
+    }
 }
