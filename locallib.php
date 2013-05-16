@@ -735,18 +735,24 @@ function scorm_get_last_attempt($learningUnitId, $userid) {
 }
 
 /**
- * TODO: migrate to StudIP
- * 
- * @global type $DB
- * @param type $scormid
- * @param type $userid
+ * @param int $scormid
+ * @param int $userid
  * @return string|boolean 
  */
 function scorm_get_last_completed_attempt($scormid, $userid) {
-    global $DB;
+    $db = DBManager::get();
+
+    $stmt = $db->prepare(
+        "SELECT MAX(`attempt`) AS a FROM `scorm_sco_tracks` WHERE `user_id` = :userid
+        AND `learning_unit_id` = :luid AND `value` IN('completed', 'passed')"
+    );
+    $stmt->bindValue(":userid", $userid);
+    $stmt->bindValue(":luid", $scormid);
+    $stmt->execute();
+    $lastattempt = $stmt->fetchObject();
 
     /// Find the last attempt number for the given user id and scorm id
-    if ($lastattempt = $DB->get_record_select('scorm_scoes_track', "userid = ? AND scormid = ? AND (value='completed' OR value='passed')", array($userid, $scormid), 'max(attempt) as a')) {
+    if ($lastattempt) {
         if (empty($lastattempt->a)) {
             return '1';
         } else {
