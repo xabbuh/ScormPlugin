@@ -437,15 +437,42 @@ function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $valu
     if ($forcecompleted) {
         //TODO - this could be broadened to encompass SCORM 2004 in future
         if (($element == 'cmi.core.lesson_status') && ($value == 'incomplete')) {
-            if ($track = $DB->get_record_select('scorm_scoes_track', 'userid=? AND scormid=? AND scoid=? AND attempt=? AND element=\'cmi.core.score.raw\'', array($userid, $scormid, $scoid, $attempt))) {
+            $stmt = $db->prepare(
+                "SELECT * FROM `scorm_sco_tracks` WHERE `user_id` = :userid,
+                AND `learning_unit_id` = :luid AND `sco_id` = :scoid AND
+                `attempt` = :attempt AND `element` = 'cmi.core.score.raw'"
+            );
+            $stmt->bindValue(":userid", $userid);
+            $stmt->bindValue(":luid", $scormid);
+            $stmt->bindValue(":scoid", $scoid);
+            $stmt->bindValue(":attempt", $attempt);
+            $stmt->execute();
+            $track = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($track) {
                 $value = 'completed';
             }
         }
         if ($element == 'cmi.core.score.raw') {
-            if ($tracktest = $DB->get_record_select('scorm_scoes_track', 'userid=? AND scormid=? AND scoid=? AND attempt=? AND element=\'cmi.core.lesson_status\'', array($userid, $scormid, $scoid, $attempt))) {
+            $stmt = $db->prepare(
+                "SELECT * FROM `scorm_sco_tracks` WHERE `user_id` = :userid,
+                AND `learning_unit_id` = :luid AND `sco_id` = :scoid AND
+                `attempt` = :attempt AND `element` = 'cmi.core.lesson_status'"
+            );
+            $stmt->bindValue(":userid", $userid);
+            $stmt->bindValue(":luid", $scormid);
+            $stmt->bindValue(":scoid", $scoid);
+            $stmt->bindValue(":attempt", $attempt);
+            $stmt->execute();
+            $tracktest = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($tracktest) {
                 if ($tracktest->value == "incomplete") {
                     $tracktest->value = "completed";
-                    $DB->update_record('scorm_scoes_track', $tracktest);
+                    $stmt = $db->prepare(
+                        "UPDATE `scorm_sco_tracks` SET `value` = 'completed'
+                        WHERE `id` = :trackid"
+                    );
+                    $stmt->bindValue(":trackid", $tracktest->id);
+                    $stmt->execute();
                 }
             }
         }
@@ -475,8 +502,11 @@ function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $valu
     if (strstr($element, '.score.raw') ||
         (in_array($element, array('cmi.completion_status', 'cmi.core.lesson_status', 'cmi.success_status'))
          && in_array($track->value, array('completed', 'passed')))) {
-        $scorm = $DB->get_record('scorm', array('id' => $scormid));
-        include_once($CFG->dirroot.'/mod/scorm/lib.php');
+        $stmt = $db->prepare("SELECT * FROM `scorm_learning_units` WHERE `id` = :luid");
+        $stmt->bindValue(":luid", $scoid);
+        $stmt->execute();
+        $scorm = $stmt->fetchObject();
+        include_once(__DIR__.'/lib.php');
         scorm_update_grades($scorm, $userid);
     }
 
@@ -1580,7 +1610,7 @@ function scorm_get_toc($user,$scorm,$cmid,$toclink=TOCJSLINK,$currentorg='',$sco
                                 $scoid = $sco->id;
                             }
                         }
-                        if ($usertrack->score_raw != '' && has_capability('mod/scorm:viewscores', get_context_instance(CONTEXT_MODULE,$cmid))) {
+                        if ($usertrack->score_raw != '') {
                             $score = '('.get_string('score','scorm').':&nbsp;'.$usertrack->score_raw.')';
                         }
                         $strsuspended = 'suspended';
