@@ -400,7 +400,7 @@ M.mod_scorm.init = function(Y, hide_nav, hide_toc, toc_title, window_name, launc
 
         // navigation
         if (scorm_hide_nav == false) {
-            scorm_nav_panel = new YAHOO.widget.Panel('scorm_navpanel', { visible:true, draggable:true, close:false, xy: [250, 450],
+            scorm_nav_panel = new YAHOO.widget.Panel('scorm_navpanel', { visible:true, draggable:true, close:false, xy: [300, 230],
                                                                     autofillheight: "body"} );
             scorm_nav_panel.setHeader(M.str.scorm.navigation);
 
