@@ -6,11 +6,6 @@ if(Request::get("display") == "popup") {
     $displaymode = "popup";
 }
 
-// TODO: remove
-error_reporting(E_ALL & ~E_NOTICE);
-ini_set("display_errors", true);
-echo "<pre>";
-
 //$id = optional_param('cm', '', PARAM_INT);       // Course Module ID, or
 //$a = optional_param('a', '', PARAM_INT);         // scorm ID
 $scoid = Request::get("scoid");  // sco ID
