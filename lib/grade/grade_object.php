@@ -179,7 +179,6 @@ abstract class grade_object {
     public static function fetch_all_helper($table, $classname, $params) {
         $instance = new $classname();
 
-        $classvars = (array)$instance;
         $params    = (array)$params;
 
         $wheresql = array();
@@ -203,21 +202,16 @@ abstract class grade_object {
             $wheresql = implode("AND", $wheresql);
         }
 
-        global $DB;
-        $rs = $DB->get_recordset_select($table, $wheresql, $newparams);
-        //returning false rather than empty array if nothing found
-        if (!$rs->valid()) {
-            $rs->close();
-            return false;
-        }
+        $db = DBManager::get();
+        $stmt = $db->prepare("SELECT * FROM `$table` WHERE $wheresql");
+        $stmt->execute($newparams);
 
         $result = array();
-        foreach($rs as $data) {
+        foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
             $instance = new $classname();
             grade_object::set_properties($instance, $data);
             $result[$instance->id] = $instance;
         }
-        $rs->close();
 
         return $result;
     }
