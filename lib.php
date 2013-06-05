@@ -703,11 +703,7 @@ function scorm_upgrade_grades() {
  * @return object grade_item
  */
 function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
-    /*
-    global $CFG, $DB;
-    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
-        require_once($CFG->libdir.'/gradelib.php');
-    }
+    $db = DBManager::get();
 
     $params = array('itemname'=>$scorm->name);
     if (isset($scorm->cmidnumber)) {
@@ -715,7 +711,10 @@ function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
     }
 
     if ($scorm->grademethod == GRADESCOES) {
-        if ($maxgrade = $DB->count_records_select('scorm_scoes', 'scorm = ? AND '.$DB->sql_isnotempty('scorm_scoes', 'launch', false, true), array($scorm->id))) {
+        $stmt = $db->prepare("SELECT COUNT(*) FROM `scorm_scos` WHERE `learning_unit_id` = :id AND `launch` != ''");
+        $stmt->bindValue(":id", $scorm->id);
+        $stmt->execute();
+        if ($maxgrade = $stmt->fetchColumn()) {
             $params['gradetype'] = GRADE_TYPE_VALUE;
             $params['grademax']  = $maxgrade;
             $params['grademin']  = 0;
@@ -733,21 +732,7 @@ function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
         $grades = null;
     }
 
-    // Update activity completion if applicable
-    if ($updatecompletion) {
-        // Get course info
-        $course = new stdClass();
-        $course->id = $scorm->course;
-
-        $cm = get_coursemodule_from_instance('scorm', $scorm->id, $course->id);
-        if (!empty($cm)) {
-            $completion = new completion_info($course);
-            $completion->update_state($cm, COMPLETION_COMPLETE);
-        }
-    }
-
-    return grade_update('mod/scorm', $scorm->course, 'mod', 'scorm', $scorm->id, 0, $grades, $params);
-     */
+    return grade_update('mod/scorm', $scorm->cid, 'mod', 'scorm', $scorm->id, 0, $grades, $params);
 }
 
 /**
