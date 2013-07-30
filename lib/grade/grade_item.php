@@ -375,7 +375,7 @@ class grade_item extends grade_object {
      * @return int PK ID if successful, false otherwise
      */
     public function insert($source=null) {
-        global $CFG, $DB;
+        $db = DBManager::get();
 
         if (empty($this->courseid)) {
             print_error('cannotinsertgrade');
@@ -392,7 +392,10 @@ class grade_item extends grade_object {
         }
 
         // always place the new items at the end, move them after insert if needed
-        $last_sortorder = $DB->get_field_select('grade_items', 'MAX(sortorder)', "courseid = ?", array($this->courseid));
+        $stmt = $db->prepare("SELECT MAX(sortorder) FROM `grade_items` WHERE `courseid` = :courseid");
+        $stmt->bindValue(":courseid", $this->courseid);
+        $stmt->execute();
+        $last_sortorder = $stmt->fetchColumn(0);
         if (!empty($last_sortorder)) {
             $this->sortorder = $last_sortorder + 1;
         } else {
@@ -791,12 +794,13 @@ class grade_item extends grade_object {
      * @return void
      */
     public function force_regrading() {
-        global $DB;
         $this->needsupdate = 1;
-        //mark this item and course item only - categories and calculated items are always regraded
-        $wheresql = "(itemtype='course' OR id=?) AND courseid=?";
-        $params   = array($this->id, $this->courseid);
-        $DB->set_field_select('grade_items', 'needsupdate', 1, $wheresql, $params);
+        $db = DBManager::get();
+        $stmt = $db->prepare("UPDATE `grade_items` SET `needsupdate` = 1 WHERE
+            (`itemtype` = 'course' OR `id` = :id) AND `courseid` = :courseid");
+        $stmt->bindValue(":id", $this->id);
+        $stmt->bindValue(":courseid", $this->courseid);
+        $stmt->execute();
     }
 
     /**

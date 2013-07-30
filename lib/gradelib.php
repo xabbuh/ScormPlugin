@@ -205,16 +205,28 @@ function grade_update($source, $courseid, $itemtype, $itemmodule, $iteminstance,
 
     $count = count($grades);
     if ($count > 0 and $count < 200) {
-        list($uids, $params) = $DB->get_in_or_equal(array_keys($grades), SQL_PARAMS_NAMED, $start='uid');
-        $params['gid'] = $grade_item->id;
-        $sql = "SELECT * FROM {grade_grades} WHERE itemid = :gid AND userid $uids";
+        $params = array("gid" => $grade_item->id);
+        $uids = array_keys($grades);
+        $paramCounter = 0;
+        $cond = array();
+        foreach ($uids as $uid) {
+            $paramCounter++;
+            $cond[] = ":uid" . $paramCounter;
+            $params[":uid" . $paramCounter] = $uid;
+        }
+        $sql = "SELECT * FROM `grade_grades` WHERE `itemid` = :gid AND `userid` IN(" . implode(", ", $cond) . ")";
 
     } else {
-        $sql = "SELECT * FROM {grade_grades} WHERE itemid = :gid";
+        $sql = "SELECT * FROM `grade_grades` WHERE itemid = :gid";
         $params = array('gid'=>$grade_item->id);
     }
-
-    $rs = $DB->get_recordset_sql($sql, $params);
+    $db = DBManager::get();
+    $stmt = $db->prepare($sql);
+    foreach ($params as $param => $value) {
+        $stmt->bindValue($param, $value);
+    }
+    $stmt->execute();
+    $rs = $stmt->fetchAll(PDO::FETCH_OBJ);
 
     $failed = false;
 
@@ -284,10 +296,6 @@ function grade_update($source, $courseid, $itemtype, $itemmodule, $iteminstance,
         if (!$grade_item->update_raw_grade($userid, $rawgrade, $source, $feedback, $feedbackformat, $usermodified, $dategraded, $datesubmitted, $grade_grade)) {
             $failed = true;
         }
-    }
-
-    if ($rs) {
-        $rs->close();
     }
 
     if (!$failed) {
