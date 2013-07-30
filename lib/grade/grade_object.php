@@ -223,16 +223,35 @@ abstract class grade_object {
      * @return bool success
      */
     public function update($source=null) {
-        global $USER, $CFG, $DB;
+        global $USER, $CFG;
 
         if (empty($this->id)) {
             debugging('Can not update grade object, no id!');
             return false;
         }
 
-        $data = $this->get_record_data();
+        $db = DBManager::get();
 
-        $DB->update_record($this->table, $data);
+        $data = $this->get_record_data();
+        $sql = "UPDATE `{$this->table}` SET";
+        $params = array();
+        $i = 0;
+        foreach (get_object_vars($data) as $var => $value) {
+            $param = ":$var";
+            if ($i > 0) {
+                $sql .= ",";
+            }
+            $sql .= " `$var` = $param";
+            $params[$param] = $value;
+            $i++;
+        }
+        $sql .= " WHERE `id` = :id";
+        $stmt = $db->prepare($sql);
+        foreach ($params as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+        $stmt->bindValue(":id", $this->id);
+        $stmt->execute();
 
         if (empty($CFG->disablegradehistory)) {
             unset($data->timecreated);
@@ -241,7 +260,26 @@ abstract class grade_object {
             $data->source       = $source;
             $data->timemodified = time();
             $data->loggeduser   = $USER->id;
-            $DB->insert_record($this->table.'_history', $data);
+            $params = array();
+            $i = 0;
+            $sql = "INSERT INTO `{$this->table}_history` SET";
+            foreach (get_object_vars($data) as $var => $value) {
+                if ($var == "id") {
+                    continue;
+                }
+                $param = ":$var";
+                if ($i > 0) {
+                    $sql .= ",";
+                }
+                $sql .= " `$var` = $param";
+                $params[$param] = $value;
+                $i++;
+            }
+            $stmt = $db->prepare($sql);
+            foreach ($params as $param => $value) {
+                $stmt->bindValue($param, $value);
+            }
+            $stmt->execute();
         }
 
         $this->notify_changed(false);
@@ -312,16 +350,35 @@ abstract class grade_object {
      * @return int The new grade object ID if successful, false otherwise
      */
     public function insert($source=null) {
-        global $USER, $CFG, $DB;
+        global $USER, $CFG;
 
         if (!empty($this->id)) {
             debugging("Grade object already exists!");
             return false;
         }
 
+        $db = DBManager::get();
+
         $data = $this->get_record_data();
 
-        $this->id = $DB->insert_record($this->table, $data);
+        $sql = "INSERT INTO `{$this->table}` SET";
+        $params = array();
+        $i = 0;
+        foreach (get_object_vars($data) as $var => $value) {
+            $param = ":$var";
+            if ($i > 0) {
+                $sql .= ",";
+            }
+            $sql .= " `$var` = $param";
+            $params[$param] = $value;
+            $i++;
+        }
+        $stmt = $db->prepare($sql);
+        foreach ($params as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+        $stmt->execute();
+        $this->id = $db->lastInsertId();
 
         // set all object properties from real db data
         $this->update_from_db();
@@ -330,12 +387,31 @@ abstract class grade_object {
 
         if (empty($CFG->disablegradehistory)) {
             unset($data->timecreated);
-            $data->action       = GRADE_HISTORY_INSERT;
+            $data->action       = GRADE_HISTORY_UPDATE;
             $data->oldid        = $this->id;
             $data->source       = $source;
             $data->timemodified = time();
             $data->loggeduser   = $USER->id;
-            $DB->insert_record($this->table.'_history', $data);
+            $params = array();
+            $i = 0;
+            $sql = "INSERT INTO `{$this->table}_history` SET";
+            foreach (get_object_vars($data) as $var => $value) {
+                if ($var == "id") {
+                    continue;
+                }
+                $param = ":$var";
+                if ($i > 0) {
+                    $sql .= ",";
+                }
+                $sql .= " `$var` = $param";
+                $params[$param] = $value;
+                $i++;
+            }
+            $stmt = $db->prepare($sql);
+            foreach ($params as $param => $value) {
+                $stmt->bindValue($param, $value);
+            }
+            $stmt->execute();
         }
 
         $this->notify_changed(false);
@@ -355,8 +431,12 @@ abstract class grade_object {
             debugging("The object could not be used in its state to retrieve a matching record from the DB, because its id field is not set.");
             return false;
         }
-        global $DB;
-        if (!$params = $DB->get_record($this->table, array('id' => $this->id))) {
+        $db = DBManager::get();
+        $stmt = $db->prepare("SELECT * FROM `{$this->table}` WHERE `id` = :id");
+        $stmt->bindValue(":id", $this->id);
+        $stmt->execute();
+        $params = $stmt->fetchObject();
+        if (!$params) {
             debugging("Object with this id:{$this->id} does not exist in table:{$this->table}, can not update from db!");
             return false;
         }
