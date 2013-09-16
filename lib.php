@@ -41,6 +41,8 @@ define('SCORM_12', 1);
 define('SCORM_13', 2);
 define('SCORM_AICC', 3);
 
+require_once($CFG->libdir.'/gradelib.php');
+
 /**
  * Return an array of status options
  *
@@ -353,7 +355,6 @@ function scorm_delete_instance($id) {
 function scorm_user_outline($course, $user, $mod, $scorm) {
     global $CFG;
 
-    require_once("$CFG->libdir/gradelib.php");
     $grades = grade_get_grades($course->id, 'mod', 'scorm', $scorm->id, $user->id);
     if (!empty($grades->items[0]->grades)) {
         $grade = reset($grades->items[0]->grades);
@@ -390,7 +391,6 @@ function scorm_user_outline($course, $user, $mod, $scorm) {
  */
 function scorm_user_complete($course, $user, $mod, $scorm) {
     global $CFG, $DB, $OUTPUT;
-    require_once("$CFG->libdir/gradelib.php");
 
     $liststyle = 'structlist';
     $now = time();
@@ -641,7 +641,6 @@ function scorm_get_user_grades($scorm, $userid = "") {
  */
 function scorm_update_grades($scorm, $userid=0, $nullifnone=true) {
     global $CFG, $DB;
-    require_once($CFG->libdir.'/gradelib.php');
 
     if ($grades = scorm_get_user_grades($scorm, $userid)) {
         scorm_grade_item_update($scorm, $grades);
@@ -745,10 +744,9 @@ function scorm_grade_item_update($scorm, $grades=null, $updatecompletion=true) {
  * @return object grade_item
  */
 function scorm_grade_item_delete($scorm) {
-//    global $CFG;
-//    require_once($CFG->libdir.'/gradelib.php');
-//
-//    return grade_update('mod/scorm', $scorm->course, 'mod', 'scorm', $scorm->id, 0, null, array('deleted'=>1));
+    global $CFG;
+
+    return grade_update('mod/scorm', $scorm->course, 'mod', 'scorm', $scorm->id, 0, null, array('deleted'=>1));
 }
 
 /**
