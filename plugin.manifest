@@ -3,6 +3,6 @@ pluginname=ScormPlugin
 origin=virtUOS
 version=0.1
 description="Embedding scorm learning units."
-studipMinVersion=2.4
+studipMinVersion=2.2
 dbscheme=db/install.sql
 uninstalldbscheme=db/uninstall.sql

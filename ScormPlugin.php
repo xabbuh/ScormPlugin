@@ -60,7 +60,7 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         return null;
     }
     
-    public function getIconNavigation($course_id, $last_visit, $user_id)
+    public function getIconNavigation($course_id, $last_visit)
     {
         return null;
     }
