@@ -115,7 +115,7 @@ $SESSION->scorm->attempt = $attempt;
 
 // Print the page header
 if (empty($scorm->popup) || $displaymode=='popup') {
-    $exitlink = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$scorm->course.'" title="'.$strexit.'">'.$strexit.'</a> ';
+    $exitlink = '<a href="'.PluginEngine::getURL($GLOBALS['plugin'], array(), "main/index").'" title="'.$strexit.'">'.$strexit.'</a> ';
     // TODO: fix button
 //    $PAGE->set_button($exitlink);
     echo $exitlink;
