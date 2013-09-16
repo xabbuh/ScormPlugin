@@ -1,4 +1,5 @@
 <?php
+define('MOODLE_INTERNAL', true);
 $plugin = PluginEngine::getPlugin("ScormPlugin");
 /**
 * @var StudipPlugin $plugin
