@@ -19,15 +19,10 @@ error_reporting(E_ALL ^ E_NOTICE);
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 $delayseconds = 2;  // Delay time before sco launch, used to give time to browser to define API
+$db = DBManager::get();
 
 if (!empty($a)) {
     $scorm = $plugin->getLearningUnitAsObject($a);
-//    if (! $course = $DB->get_record('course', array('id'=>$scorm->course))) {
-//        print_error('coursemisconf');
-//    }
-//    if (! $cm = get_coursemodule_from_instance('scorm', $scorm->id, $course->id)) {
-//        print_error('invalidcoursemodule');
-//    }
 } else {
     print_error('missingparameter');
 }
@@ -49,9 +44,11 @@ if (!empty($scoid)) {
     if ($sco = scorm_get_sco($scoid)) {
         if ($sco->launch == '') {
             // Search for the next launchable sco
-            if ($scoes = $DB->get_records_select('scorm_scoes', "scorm = ? AND '.$DB->sql_isnotempty('scorm_scoes', 'launch', false, true).' AND id > ?", array($scorm->id, $sco->id), 'id ASC')) {
-                $sco = current($scoes);
-            }
+            $stmt = $db->prepare('SELECT * FROM `scorm_scos` WHERE `learning_unit_id` = :id AND `launch` != "" AND `id` > :scoid ORDER BY id');
+            $stmt->bindValue(':id', $scorm->id);
+            $stmt->bindValue(':scoid', $sco->id);
+            $stmt->execute();
+            $sco = $stmt->fetch(PDO::FETCH_ASSOC);
         }
     }
 }
@@ -59,8 +56,10 @@ if (!empty($scoid)) {
 // If no sco was found get the first of SCORM package
 //
 if (!isset($sco)) {
-    $scoes = $DB->get_records_select('scorm_scoes', "scorm = ? AND ".$DB->sql_isnotempty('scorm_scoes', 'launch', false, true), array($scorm->id), 'id ASC');
-    $sco = current($scoes);
+    $stmt = $db->prepare('SELECT * FROM `scorm_scos` WHERE `learning_unit_id` = :id AND `launch` != "" ORDER BY id');
+    $stmt->bindValue(':id', $scorm->id);
+    $stmt->execute();
+    $sco = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 if ($sco->scormtype == 'asset') {
