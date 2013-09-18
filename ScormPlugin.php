@@ -37,21 +37,23 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
         global $perm;
         
         parent::__construct();
-        
-        $url = PluginEngine::getURL($this, array(), "main");
-        $scormItem = new Navigation(_("Scorm"), $url);
-        Navigation::addItem("/course/scorm", $scormItem);
-        
-        $scormOverviewItem = new Navigation(_("Übersicht"), $url);
-        Navigation::addItem("/course/scorm/overview", $scormOverviewItem);
-        
-        // allow to add learning units if the user has "dozent" permission
-        // for the current course
-        $cid = Request::get("cid");
-        if($cid && $perm->have_studip_perm("dozent", $cid)) {
-            $url = PluginEngine::getURL($this, array(), "main/add");
-            $addScormItem = new Navigation(_("Hinzufügen"), $url);
-            Navigation::addItem("/course/scorm/add", $addScormItem);
+
+        if (Navigation::hasItem('/course')) {
+            $url = PluginEngine::getURL($this, array(), 'main');
+            $scormItem = new Navigation(_('Scorm'), $url);
+            Navigation::addItem('/course/scorm', $scormItem);
+
+            $scormOverviewItem = new Navigation(_('Übersicht'), $url);
+            Navigation::addItem('/course/scorm/overview', $scormOverviewItem);
+
+            // allow to add learning units if the user has 'dozent' permission
+            // for the current course
+            $cid = Request::get('cid');
+            if($cid && $perm->have_studip_perm('dozent', $cid)) {
+                $url = PluginEngine::getURL($this, array(), 'main/add');
+                $addScormItem = new Navigation(_('Hinzufügen'), $url);
+                Navigation::addItem('/course/scorm/add', $addScormItem);
+            }
         }
     }
     
