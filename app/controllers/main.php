@@ -89,13 +89,8 @@ class MainController extends StudipController
     function load_data_action()
     {
         // load the plugin's frame layout
-        $this->plugin = $GLOBALS["plugin"];
-        $pluginManager = PluginManager::getInstance();
-        $pluginInfo = $pluginManager->getPluginInfo(get_class($this->plugin));
-        $layoutPath = $GLOBALS["PLUGINS_PATH"] . "/" . $pluginInfo["path"]
-                . "/layouts/frame";
-        $layout = $GLOBALS['template_factory']->open($layoutPath);
-        $this->set_layout($layout);
+        $this->plugin = $GLOBALS['plugin'];
+        $this->set_layout('layouts/frame.php');
     }
     
     function add_action()
