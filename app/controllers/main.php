@@ -70,6 +70,8 @@ class MainController extends StudipController
     
     function load_sco_action()
     {
+        $this->plugin = $GLOBALS["plugin"];
+
         // SCORM id
         $this->a = Request::get("a", "");
         
@@ -77,13 +79,7 @@ class MainController extends StudipController
         $this->scoid = Request::get("scoid");
         
         // load the plugin's frame layout
-        $this->plugin = $GLOBALS["plugin"];
-        $pluginManager = PluginManager::getInstance();
-        $pluginInfo = $pluginManager->getPluginInfo(get_class($this->plugin));
-        $layoutPath = $GLOBALS["PLUGINS_PATH"] . "/" . $pluginInfo["path"]
-                . "/layouts/frame";
-        $layout = $GLOBALS['template_factory']->open($layoutPath);
-        $this->set_layout($layout);
+        $this->set_layout('layouts/frame');
     }
     
     function load_data_action()
