@@ -117,7 +117,7 @@ if (scorm_external_link($sco->launch)) {
     //note: do not convert this to use get_file_url() or moodle_url()
     //SCORM does not work without slasharguments and moodle_url() encodes querystring vars
     $plugin = PluginEngine::getPlugin("ScormPlugin");
-    $result = $plugin->getPluginUrl() . "/packages/{$scorm->id}/contents/$launcher";
+    $result = $GLOBALS['DYNAMIC_CONTENT_URL'].'/Scorm/'.$scorm->id.'/contents/'.$launcher;
 }
 
 // which API are we looking for
