@@ -137,7 +137,7 @@ class ScormPlugin extends StudIPPlugin implements StandardPlugin
      */
     public function getPackagesPath()
     {
-        return $GLOBALS["ABSOLUTE_PATH_STUDIP"] . $this->getPluginPath() . "/packages";
+        return $GLOBALS['DYNAMIC_CONTENT_PATH'].'/Scorm';
     }
     
     /**
